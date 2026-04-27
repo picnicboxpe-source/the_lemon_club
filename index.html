@@ -332,7 +332,7 @@
 <!-- ════════════════════════ NAV ════════════════════════ -->
 <nav id="main-nav">
   <div class="nav-brand" onclick="showHome()" id="nav-brand-wrap">
-    <span id="nav-brand-text">THE LEMON CLUB</span>
+    <span id="nav-brand-text"></span>
   </div>
   <div class="nav-links" id="nav-links">
     <a onclick="showHome(); closeNav()">Inicio</a>
@@ -618,8 +618,12 @@
       </div>
       <div class="admin-section-body">
         <div class="settings-row">
-          <label>Nombre marca</label>
+          <label>Nombre marca (hero/footer)</label>
           <input type="text" id="set-brand" placeholder="The Lemon Club">
+        </div>
+        <div class="settings-row">
+          <label>Texto en nav <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(dejar vacío para ocultar)</span></label>
+          <input type="text" id="set-navbrand" placeholder="Vacío = sin texto">
         </div>
         <div class="settings-row">
           <label>Tipografía</label>
@@ -825,7 +829,7 @@ const textBlocksCol = collection(db, 'textBlocks');
 // ─── In-memory store ───
 let store = {
   settings: {
-    font: 'Barlow', brand: 'The Lemon Club', logo: '', brandImg: '',
+    font: 'Barlow', brand: 'The Lemon Club', navBrand: '', logo: '', brandImg: '',
     heroSub: 'Bolsos y accesorios con personalidad. Únicos, modernos y para ti.',
     wa: '51987654321',
     band: 'HECHO CON AMOR — ENVÍOS A TODO EL PAÍS — ESCRÍBENOS POR WHATSAPP',
@@ -848,7 +852,43 @@ document.getElementById('home-page').style.display = 'none';
 document.getElementById('main-nav').style.display = 'none';
 const loadingDiv = document.createElement('div');
 loadingDiv.id = 'loading-screen';
-loadingDiv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;background:#0A0A0A;"><div style="font-family:'Bebas Neue',sans-serif;font-size:3rem;color:#F5E642;letter-spacing:8px;">THE LEMON CLUB</div><div style="color:#555;font-size:.85rem;letter-spacing:3px;text-transform:uppercase;">Cargando tienda...</div></div>`;
+loadingDiv.innerHTML = `<div id="loading-inner" style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1.75rem;background:#555D1D;transition:background .5s;">
+  <div data-ltxt style="font-family:'Bebas Neue',sans-serif;font-size:3rem;color:#e8eda0;letter-spacing:8px;text-align:center;padding:0 1rem;transition:color .5s;">THE LEMON CLUB</div>
+  <div style="display:flex;gap:1.1rem;align-items:center;">
+    <svg data-ldot style="animation:lemon-bounce 1.2s ease-in-out infinite;animation-delay:0s;" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="18" rx="13" ry="10" fill="#F5E642" />
+      <ellipse cx="18" cy="18" rx="11" ry="8.5" fill="#F9EF5A" />
+      <path d="M5.5 18 Q3 14 5 11 Q7 8.5 10 9" stroke="#D4C220" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <path d="M30.5 18 Q33 22 31 25 Q29 27.5 26 27" stroke="#D4C220" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <ellipse cx="18" cy="18" rx="13" ry="10" fill="none" stroke="#C8B800" stroke-width=".8" />
+      <path d="M18 8 Q20 5.5 22 6.5" stroke="#4a7c20" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <path d="M22 6.5 Q23.5 5 22.5 3.5" stroke="#3d6b1a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="21.5" cy="5.5" rx="2.2" ry="1.2" transform="rotate(-30 21.5 5.5)" fill="#4a8c22" opacity=".9"/>
+    </svg>
+    <svg data-ldot style="animation:lemon-bounce 1.2s ease-in-out infinite;animation-delay:.22s;" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="18" rx="13" ry="10" fill="#F5E642" />
+      <ellipse cx="18" cy="18" rx="11" ry="8.5" fill="#F9EF5A" />
+      <path d="M5.5 18 Q3 14 5 11 Q7 8.5 10 9" stroke="#D4C220" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <path d="M30.5 18 Q33 22 31 25 Q29 27.5 26 27" stroke="#D4C220" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <ellipse cx="18" cy="18" rx="13" ry="10" fill="none" stroke="#C8B800" stroke-width=".8" />
+      <path d="M18 8 Q20 5.5 22 6.5" stroke="#4a7c20" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <path d="M22 6.5 Q23.5 5 22.5 3.5" stroke="#3d6b1a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="21.5" cy="5.5" rx="2.2" ry="1.2" transform="rotate(-30 21.5 5.5)" fill="#4a8c22" opacity=".9"/>
+    </svg>
+    <svg data-ldot style="animation:lemon-bounce 1.2s ease-in-out infinite;animation-delay:.44s;" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="18" rx="13" ry="10" fill="#F5E642" />
+      <ellipse cx="18" cy="18" rx="11" ry="8.5" fill="#F9EF5A" />
+      <path d="M5.5 18 Q3 14 5 11 Q7 8.5 10 9" stroke="#D4C220" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <path d="M30.5 18 Q33 22 31 25 Q29 27.5 26 27" stroke="#D4C220" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <ellipse cx="18" cy="18" rx="13" ry="10" fill="none" stroke="#C8B800" stroke-width=".8" />
+      <path d="M18 8 Q20 5.5 22 6.5" stroke="#4a7c20" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+      <path d="M22 6.5 Q23.5 5 22.5 3.5" stroke="#3d6b1a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="21.5" cy="5.5" rx="2.2" ry="1.2" transform="rotate(-30 21.5 5.5)" fill="#4a8c22" opacity=".9"/>
+    </svg>
+  </div>
+  <div data-lsub style="color:#b8c45a;font-size:.8rem;letter-spacing:3px;text-transform:uppercase;transition:color .5s;">Cargando tienda...</div>
+</div>
+<style>@keyframes lemon-bounce{0%,80%,100%{transform:translateY(0) scale(.85);opacity:.5}40%{transform:translateY(-10px) scale(1);opacity:1}}</style>`;
 document.body.prepend(loadingDiv);
 let loaded = false;
 function hideLoading() {
@@ -868,10 +908,35 @@ async function deleteProductFromFB(id) { await deleteDoc(doc(db, 'products', Str
 async function saveTextBlockToFB(tb) { await setDoc(doc(db, 'textBlocks', String(tb.id)), tb); }
 async function deleteTextBlockFromFB(id) { await deleteDoc(doc(db, 'textBlocks', String(id))); }
 
+// Darken/lighten a hex color by amount (-255 to 255)
+function adjustShade(hex, amount) {
+  try {
+    const n = parseInt(hex.replace('#',''), 16);
+    const r = Math.min(255, Math.max(0, (n>>16) + amount));
+    const g = Math.min(255, Math.max(0, ((n>>8)&0xff) + amount));
+    const b = Math.min(255, Math.max(0, (n&0xff) + amount));
+    return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+  } catch(e) { return hex; }
+}
+
 // ─── Bootstrap: real-time listeners ───
 function bootstrap() {
   onSnapshot(settingsRef, snap => {
-    if (snap.exists()) store.settings = { ...store.settings, ...snap.data() };
+    if (snap.exists()) {
+      store.settings = { ...store.settings, ...snap.data() };
+      // Update loading screen colors live if still showing
+      const li = document.getElementById('loading-inner');
+      if (li) {
+        const c = store.settings.colors || {};
+        const bg = c.green ? adjustShade(c.green, -60) : '#555D1D';
+        const txt = c.green ? adjustShade(c.green, 80) : '#e8eda0';
+        const sub = c.green ? adjustShade(c.green, 30) : '#b8c45a';
+        li.style.background = bg;
+        li.querySelectorAll('[data-ldot]').forEach(d => d.style.background = dot);
+        li.querySelector('[data-ltxt]') && (li.querySelector('[data-ltxt]').style.color = txt);
+        li.querySelector('[data-lsub]') && (li.querySelector('[data-lsub]').style.color = sub);
+      }
+    }
     if (loaded) renderHome();
   });
   onSnapshot(categoriesRef, snap => {
@@ -1086,7 +1151,7 @@ function renderHome() {
   document.title = s.brand+' — Catálogo';
   applyColors(); applyFont();
   const navTxt=document.getElementById('nav-brand-text');
-  if(navTxt) navTxt.textContent=s.brand;
+  if(navTxt) navTxt.textContent = (s.navBrand !== undefined ? s.navBrand : '');
   const heroWrap=document.getElementById('hero-img-wrap'),heroTxt=document.getElementById('brand-hero'),heroImg=document.getElementById('hero-brand-img');
   if(s.brandImg){heroImg.src=s.brandImg;heroWrap.style.display='block';heroTxt.style.display='none';}
   else{heroWrap.style.display='none';heroTxt.style.display='block';heroTxt.textContent=s.brand;}
@@ -1150,6 +1215,7 @@ window.openLoginModal=openLoginModal; window.closeLoginModal=closeLoginModal; wi
 function renderAdmin() {
   const s=store.settings;
   document.getElementById('set-brand').value=s.brand;
+  document.getElementById('set-navbrand').value=s.navBrand||'';
   document.getElementById('set-font').value=s.font||'Barlow';
   document.getElementById('set-brandimg').value=s.brandImg||'';
   const pb=document.getElementById('preview-brandimg'), db2=document.getElementById('btn-del-brandimg');
@@ -1207,6 +1273,7 @@ async function saveSettings() {
   const btn = document.querySelector('.admin-section-header .form-save-btn');
   if(btn){btn.textContent='Guardando...';btn.disabled=true;}
   store.settings.brand=document.getElementById('set-brand').value.trim()||'The Lemon Club';
+  store.settings.navBrand=document.getElementById('set-navbrand').value;
   store.settings.font=document.getElementById('set-font').value;
   store.settings.brandImg=document.getElementById('set-brandimg').value.trim();
   store.settings.heroSub=document.getElementById('set-herosub').value.trim();
