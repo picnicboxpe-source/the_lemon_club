@@ -97,6 +97,9 @@
   .tag-nuevo { background: var(--green); color: var(--white); }
   .tag-preventa { background: var(--black); color: var(--yellow); }
   .tag-oferta { background: var(--red-tag); color: var(--white); }
+  .tag-low { background: #FF8C00; color: #fff; }
+  .tag-unique { background: #D0021B; color: #fff; animation: pulse-unique 1.8s ease-in-out infinite; }
+  @keyframes pulse-unique { 0%,100%{opacity:1} 50%{opacity:.72} }
   .product-info { padding: 1.1rem 1.25rem 1.4rem; }
   .product-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; }
   .product-price { font-size: 1.1rem; font-weight: 700; color: var(--black); }
@@ -503,9 +506,14 @@
             <option value="oferta">Oferta</option>
           </select>
         </div>
-        <div class="form-group full" style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;">
-          <input type="checkbox" id="pf-soldout" style="width:18px;height:18px;cursor:pointer;flex-shrink:0;">
-          <label style="margin:0;font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;cursor:pointer;" for="pf-soldout">Marcar como AGOTADO</label>
+        <div class="form-group full">
+          <label>Estado de stock</label>
+          <select id="pf-stock" style="border:1.5px solid #ddd;border-radius:2px;padding:.65rem .9rem;font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;width:100%;background:#fff;cursor:pointer;">
+            <option value="available">✅ Disponible</option>
+            <option value="unique">🔴 Pieza única</option>
+            <option value="low">⚠️ Pocas unidades</option>
+            <option value="soldout">❌ Agotado</option>
+          </select>
         </div>
         <div class="form-group full">
           <label>Descripción</label>
@@ -1000,7 +1008,16 @@ function showDetail(id) {
   document.getElementById('detail-price').textContent = parseFloat(p.price).toFixed(2);
   document.getElementById('detail-desc').textContent = p.desc;
   const tagEl = document.getElementById('detail-tag');
-  if (p.tag) { tagEl.textContent = p.tag.charAt(0).toUpperCase()+p.tag.slice(1); tagEl.className='detail-tag tag-'+p.tag; tagEl.style.display='inline-block'; }
+  // Show product tag OR stock warning (low stock), not both
+  if (p.stock === 'unique' && !p.soldOut) {
+    tagEl.textContent = '🔴 Pieza única';
+    tagEl.className = 'detail-tag tag-unique';
+    tagEl.style.display = 'inline-block';
+  } else if (p.stock === 'low' && !p.soldOut) {
+    tagEl.textContent = 'Pocas unidades';
+    tagEl.className = 'detail-tag tag-low';
+    tagEl.style.display = 'inline-block';
+  } else if (p.tag) { tagEl.textContent = p.tag.charAt(0).toUpperCase()+p.tag.slice(1); tagEl.className='detail-tag tag-'+p.tag; tagEl.style.display='inline-block'; }
   else { tagEl.style.display='none'; }
   const imgs = (p.imgs||[]).filter(Boolean);
   const mainImg = document.getElementById('detail-main-img');
@@ -1174,9 +1191,16 @@ function renderProducts() {
   grid.innerHTML=filtered.map(p=>{
     const img=p.imgs&&p.imgs[0]?`<img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">`:`<div class="img-placeholder">📷</div>`;
     const tag=p.tag?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
+    const stockTag = p.stock==='low'
+      ? `<span class="product-tag tag-low" style="position:absolute;bottom:10px;left:10px;top:auto;">Pocas unidades</span>`
+      : p.stock==='unique'
+        ? `<span class="product-tag tag-unique" style="position:absolute;bottom:10px;left:10px;top:auto;">🔴 Pieza única</span>`
+        : '';
     const soldOverlay=p.soldOut?`<div class="soldout-overlay"><span class="soldout-label">AGOTADO</span></div>`:'';
-    const waBtn=p.soldOut?`<a class="wa-btn-mini disabled">AGOTADO</a>`:`<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')">💬 Consultar</a>`;
-    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${parseFloat(p.price).toFixed(2)}</div>${waBtn}</div></div>`;
+    const waBtn=p.soldOut
+      ? `<a class="wa-btn-mini disabled">AGOTADO</a>`
+      : `<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')" >💬 Consultar</a><button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">+ Agregar al carrito</button>`;
+    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${parseFloat(p.price).toFixed(2)}</div>${waBtn}</div></div>`;
   }).join('');
 }
 function renderTextBlocks() {
@@ -1238,7 +1262,7 @@ function renderAdminProducts() {
     <div class="admin-product-item">
       <img src="${p.imgs&&p.imgs[0]?p.imgs[0]:''}" alt="${p.name}" onerror="this.style.background='#eee'">
       <div class="api-info">
-        <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;">AGOTADO</span>':''}</strong>
+        <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;font-weight:900;">AGOTADO</span>':p.stock==='unique'?' <span style="color:#D0021B;font-size:.7rem;font-weight:900;">PIEZA ÚNICA</span>':p.stock==='low'?' <span style="color:#FF8C00;font-size:.7rem;font-weight:900;">POCAS</span>':''}</strong>
         <span>$ ${parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
       </div>
       <div class="api-actions">
@@ -1301,7 +1325,7 @@ function openProductModal(id) {
     document.getElementById('pf-price').value=p.price;
     document.getElementById('pf-tag').value=p.tag||'';
     document.getElementById('pf-category').value=p.category||'';
-    document.getElementById('pf-soldout').checked=!!p.soldOut;
+    document.getElementById('pf-stock').value = p.soldOut ? 'soldout' : (p.stock || 'available');
     document.getElementById('pf-desc').value=p.desc;
     document.getElementById('pf-img1').value=(p.imgs&&p.imgs[0])||'';
     document.getElementById('pf-img2').value=(p.imgs&&p.imgs[1])||'';
@@ -1310,7 +1334,7 @@ function openProductModal(id) {
   } else {
     ['pf-name','pf-price','pf-desc','pf-img1','pf-img2','pf-img3'].forEach(fid=>document.getElementById(fid).value='');
     document.getElementById('pf-tag').value=''; document.getElementById('pf-category').value='';
-    document.getElementById('pf-soldout').checked=false;
+    document.getElementById('pf-stock').value='available';
     [1,2,3].forEach(n=>clearProductImg(n));
   }
   document.getElementById('product-modal').classList.add('open');
@@ -1323,7 +1347,8 @@ async function saveProduct() {
   const prod={
     name, price, tag:document.getElementById('pf-tag').value,
     category:document.getElementById('pf-category').value,
-    soldOut:document.getElementById('pf-soldout').checked,
+    soldOut: document.getElementById('pf-stock').value === 'soldout',
+    stock: document.getElementById('pf-stock').value,
     desc:document.getElementById('pf-desc').value.trim(), imgs,
     id: editingProductId || Date.now()
   };
