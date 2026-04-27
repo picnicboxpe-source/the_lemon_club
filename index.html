@@ -56,10 +56,10 @@
 
   .marquee-wrap { overflow: hidden; width: 100%; margin: .5rem 0; }
   .marquee-track { display: flex; white-space: nowrap; }
-  .marquee-track.fwd { animation: marquee-fwd 18s linear infinite; }
-  .marquee-track.bwd { animation: marquee-bwd 22s linear infinite; }
-  .marquee-track.fwd2 { animation: marquee-fwd 14s linear infinite; }
-  .marquee-item { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; color: rgba(0,0,0,.08); letter-spacing: 8px; padding: 0 2rem; user-select: none; }
+  .marquee-track.fwd { animation: marquee-fwd 9s linear infinite; }
+  .marquee-track.bwd { animation: marquee-bwd 9s linear infinite; }
+  .marquee-track.fwd2 { animation: marquee-fwd 7s linear infinite; }
+  .marquee-item { font-family: 'Bebas Neue', sans-serif; font-size: 5.5rem; color: rgba(0,0,0,.1); letter-spacing: 8px; padding: 0 1.5rem; user-select: none; }
   @keyframes marquee-fwd { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   @keyframes marquee-bwd { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 
@@ -99,6 +99,7 @@
   .tag-oferta { background: var(--red-tag); color: var(--white); }
   .tag-low { background: #FF8C00; color: #fff; }
   .tag-unique { background: #D0021B; color: #fff; animation: pulse-unique 1.8s ease-in-out infinite; }
+  .tag-collection { background: linear-gradient(135deg,#6B2D8B,#9B4DB8); color: #fff; }
   @keyframes pulse-unique { 0%,100%{opacity:1} 50%{opacity:.72} }
   .product-info { padding: 1.1rem 1.25rem 1.4rem; }
   .product-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; }
@@ -416,7 +417,7 @@
     <div class="detail-info">
       <div id="detail-tag" class="detail-tag"></div>
       <div class="detail-name" id="detail-name"></div>
-      <div class="detail-price"><span class="currency">$</span><span id="detail-price"></span></div>
+      <div class="detail-price"><span class="currency">$</span><span id="detail-price"></span> <span style="font-size:.85rem;color:#aaa;font-weight:600;">c/u</span></div>
       <div class="detail-desc" id="detail-desc"></div>
       <div class="detail-qty" id="detail-qty-wrap">
         <label>Cantidad</label>
@@ -510,6 +511,7 @@
           <label>Estado de stock</label>
           <select id="pf-stock" style="border:1.5px solid #ddd;border-radius:2px;padding:.65rem .9rem;font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;width:100%;background:#fff;cursor:pointer;">
             <option value="available">✅ Disponible</option>
+            <option value="collection">✨ Única Colección</option>
             <option value="unique">🔴 Pieza única</option>
             <option value="low">⚠️ Pocas unidades</option>
             <option value="soldout">❌ Agotado</option>
@@ -1013,6 +1015,10 @@ function showDetail(id) {
     tagEl.textContent = '🔴 Pieza única';
     tagEl.className = 'detail-tag tag-unique';
     tagEl.style.display = 'inline-block';
+  } else if (p.stock === 'collection' && !p.soldOut) {
+    tagEl.textContent = '✨ Única Colección';
+    tagEl.className = 'detail-tag tag-collection';
+    tagEl.style.display = 'inline-block';
   } else if (p.stock === 'low' && !p.soldOut) {
     tagEl.textContent = 'Pocas unidades';
     tagEl.className = 'detail-tag tag-low';
@@ -1195,12 +1201,14 @@ function renderProducts() {
       ? `<span class="product-tag tag-low" style="position:absolute;bottom:10px;left:10px;top:auto;">Pocas unidades</span>`
       : p.stock==='unique'
         ? `<span class="product-tag tag-unique" style="position:absolute;bottom:10px;left:10px;top:auto;">🔴 Pieza única</span>`
-        : '';
+        : p.stock==='collection'
+          ? `<span class="product-tag tag-collection" style="position:absolute;bottom:10px;left:10px;top:auto;">✨ Única Colección</span>`
+          : '';
     const soldOverlay=p.soldOut?`<div class="soldout-overlay"><span class="soldout-label">AGOTADO</span></div>`:'';
     const waBtn=p.soldOut
       ? `<a class="wa-btn-mini disabled">AGOTADO</a>`
       : `<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')" >💬 Consultar</a><button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">+ Agregar al carrito</button>`;
-    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${parseFloat(p.price).toFixed(2)}</div>${waBtn}</div></div>`;
+    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${parseFloat(p.price).toFixed(2)} <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span></div>${waBtn}</div></div>`;
   }).join('');
 }
 function renderTextBlocks() {
@@ -1262,7 +1270,7 @@ function renderAdminProducts() {
     <div class="admin-product-item">
       <img src="${p.imgs&&p.imgs[0]?p.imgs[0]:''}" alt="${p.name}" onerror="this.style.background='#eee'">
       <div class="api-info">
-        <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;font-weight:900;">AGOTADO</span>':p.stock==='unique'?' <span style="color:#D0021B;font-size:.7rem;font-weight:900;">PIEZA ÚNICA</span>':p.stock==='low'?' <span style="color:#FF8C00;font-size:.7rem;font-weight:900;">POCAS</span>':''}</strong>
+        <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;font-weight:900;">AGOTADO</span>':p.stock==='unique'?' <span style="color:#D0021B;font-size:.7rem;font-weight:900;">PIEZA ÚNICA</span>':p.stock==='collection'?' <span style="color:#6B2D8B;font-size:.7rem;font-weight:900;">ÚNICA COLECCIÓN</span>':p.stock==='low'?' <span style="color:#FF8C00;font-size:.7rem;font-weight:900;">POCAS</span>':''}</strong>
         <span>$ ${parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
       </div>
       <div class="api-actions">
