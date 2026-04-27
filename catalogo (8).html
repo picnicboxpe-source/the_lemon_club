@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lemon Club — Catálogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #F5E642;
+    --green: #1DB954;
+    --black: #0A0A0A;
+    --white: #FAFAFA;
+    --gray: #E8E8E8;
+    --dark-gray: #222;
+    --red-tag: #FF3B3B;
+    --brand: "LEMON";
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Barlow', sans-serif; background: var(--white); color: var(--black); overflow-x: hidden; }
+
+  /* ─── NAV ─── */
+  nav {
+    background: var(--black);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 64px; position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo-img { height: 40px; max-width: 160px; object-fit: contain; display: block; }
+  .nav-brand { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--yellow); letter-spacing: 4px; cursor: pointer; display: flex; align-items: center; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--white); text-decoration: none; font-weight: 600; font-size: .95rem; letter-spacing: 1px; text-transform: uppercase; transition: color .2s; cursor: pointer; }
+  .nav-links a:hover { color: var(--yellow); }
+  .admin-btn { background: var(--yellow); color: var(--black); border: none; padding: .45rem 1.2rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .85rem; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity .2s; }
+  .admin-btn:hover { opacity: .85; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger span { width: 24px; height: 2px; background: var(--white); transition: .3s; }
+
+  /* ─── MARQUEE HERO ─── */
+  .hero {
+    background: var(--yellow);
+    overflow: hidden;
+    position: relative;
+    min-height: clamp(300px, 56.25vw, 1080px); /* 1920x1080 ratio = 56.25% */
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .hero-center {
+    text-align: center; padding: 2rem 2rem 3rem; position: relative; z-index: 2;
+  }
+  .hero-eyebrow { font-size: .85rem; font-weight: 700; letter-spacing: 6px; text-transform: uppercase; color: rgba(0,0,0,.5); margin-bottom: 1rem; }
+  .hero-brand-img { width: 100%; height: clamp(200px, 30vw, 520px); object-fit: cover; object-position: center; display: block; }
+  .hero-brand-img-wrap { width: 100%; margin: 0; padding: 0; overflow: hidden; }
+  .hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(5rem, 14vw, 11rem); line-height: .9; color: var(--black); letter-spacing: -2px; }
+  .hero-sub { font-size: 1.15rem; font-weight: 600; color: rgba(0,0,0,.65); margin-top: 1.2rem; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .hero-cta { display: inline-block; margin-top: 2rem; background: var(--black); color: var(--yellow); padding: 1rem 2.5rem; font-weight: 700; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; border-radius: 2px; cursor: pointer; transition: transform .2s; text-decoration: none; }
+  .hero-cta:hover { transform: translateY(-2px); }
+
+  .marquee-wrap { overflow: hidden; width: 100%; margin: .5rem 0; }
+  .marquee-track { display: flex; white-space: nowrap; }
+  .marquee-track.fwd { animation: marquee-fwd 18s linear infinite; }
+  .marquee-track.bwd { animation: marquee-bwd 22s linear infinite; }
+  .marquee-track.fwd2 { animation: marquee-fwd 14s linear infinite; }
+  .marquee-item { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; color: rgba(0,0,0,.08); letter-spacing: 8px; padding: 0 2rem; user-select: none; }
+  @keyframes marquee-fwd { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes marquee-bwd { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+  /* ─── SECTION LABEL ─── */
+  .section-label {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 3rem 2.5rem 1.5rem;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .section-label h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 2.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+  .section-label span { font-size: .85rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #999; }
+
+  /* ─── PRODUCT GRID ─── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 0 2.5rem 4rem;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .product-card {
+    background: var(--white); border: 1.5px solid var(--gray);
+    border-radius: 4px; overflow: hidden;
+    cursor: pointer; transition: transform .25s, box-shadow .25s;
+    position: relative;
+  }
+  .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.12); }
+  .product-img-wrap { position: relative; aspect-ratio: 3/4; overflow: hidden; background: #f0f0f0; }
+  .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; display: block; }
+  .product-card:hover .product-img-wrap img { transform: scale(1.04); }
+  .product-tag {
+    position: absolute; top: 12px; left: 12px;
+    padding: .3rem .7rem; font-size: .72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 2px;
+  }
+  .tag-nuevo { background: var(--green); color: var(--white); }
+  .tag-preventa { background: var(--black); color: var(--yellow); }
+  .tag-oferta { background: var(--red-tag); color: var(--white); }
+  .product-info { padding: 1.1rem 1.25rem 1.4rem; }
+  .product-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; }
+  .product-price { font-size: 1.1rem; font-weight: 700; color: var(--black); }
+  .product-price .currency { font-size: .8rem; font-weight: 600; color: #777; margin-right: 2px; }
+  .wa-btn-mini {
+    display: block; width: 100%; margin-top: .9rem;
+    background: var(--black); color: var(--white);
+    border: none; padding: .75rem 1rem;
+    font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .85rem; letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px; transition: background .2s;
+    text-align: center; text-decoration: none;
+  }
+  .wa-btn-mini:hover { background: var(--green); }
+
+  /* ─── DIVIDER BAND ─── */
+  .band { background: var(--black); padding: 3rem 2.5rem; text-align: center; margin: 2rem 0; }
+  .band p { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 5vw, 4rem); color: var(--yellow); letter-spacing: 4px; }
+
+  /* ─── TEXT BLOCKS (custom editable sections) ─── */
+  .text-blocks { max-width: 1200px; margin: 0 auto; padding: 0 2.5rem; }
+  .text-block { background: var(--gray); border-radius: 4px; padding: 2.5rem; margin-bottom: 1.5rem; position: relative; }
+  .text-block h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin-bottom: .6rem; }
+  .text-block p { font-size: 1rem; line-height: 1.7; color: #444; }
+  .text-block .edit-indicator { display: none; }
+
+  /* ─── FOOTER ─── */
+  footer { background: var(--black); color: var(--white); padding: 3rem 2.5rem; text-align: center; }
+  footer .f-brand { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: var(--yellow); letter-spacing: 6px; }
+  footer p { color: #666; font-size: .875rem; margin-top: .5rem; }
+  footer .wa-footer {
+    display: inline-block; margin-top: 1.5rem;
+    background: var(--green); color: var(--white);
+    padding: 1rem 2.5rem; font-weight: 700; font-size: .95rem; letter-spacing: 2px; text-transform: uppercase;
+    border-radius: 2px; text-decoration: none; transition: opacity .2s;
+  }
+  footer .wa-footer:hover { opacity: .85; }
+
+  /* ─── PRODUCT DETAIL PAGE ─── */
+  #detail-page { display: none; min-height: 100vh; }
+  .detail-back { display: flex; align-items: center; gap: .5rem; padding: 1.5rem 2.5rem; cursor: pointer; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: .85rem; color: #555; max-width: 1200px; margin: 0 auto; }
+  .detail-back:hover { color: var(--black); }
+  .detail-back svg { transition: transform .2s; }
+  .detail-back:hover svg { transform: translateX(-3px); }
+  .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; max-width: 1200px; margin: 0 auto; padding: 0 2.5rem 5rem; }
+  .detail-gallery { display: flex; flex-direction: column; gap: .75rem; }
+  .detail-main-img { aspect-ratio: 3/4; overflow: hidden; border-radius: 4px; background: #f0f0f0; }
+  .detail-main-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-thumbs { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .detail-thumb { width: 72px; height: 96px; border-radius: 2px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: border-color .2s; }
+  .detail-thumb.active { border-color: var(--black); }
+  .detail-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-info { display: flex; flex-direction: column; justify-content: flex-start; padding-top: 1rem; }
+  .detail-tag { display: inline-block; margin-bottom: 1rem; padding: .3rem .8rem; font-size: .72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 2px; }
+  .detail-name { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 900; text-transform: uppercase; line-height: 1; letter-spacing: 1px; margin-bottom: .75rem; }
+  .detail-price { font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .detail-price .currency { font-size: 1.1rem; color: #777; }
+  .detail-desc { font-size: 1rem; line-height: 1.75; color: #555; margin-bottom: 2rem; border-top: 1.5px solid var(--gray); padding-top: 1.5rem; }
+  .wa-btn-main {
+    display: flex; align-items: center; justify-content: center; gap: .75rem;
+    background: var(--green); color: var(--white);
+    border: none; padding: 1.1rem 2rem;
+    font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; border-radius: 3px; transition: opacity .2s, transform .2s;
+    text-decoration: none; width: 100%;
+  }
+  .wa-btn-main:hover { opacity: .9; transform: translateY(-2px); }
+  .wa-btn-main svg { flex-shrink: 0; }
+
+  /* ─── ADMIN MODAL ─── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); width: 100%; max-width: 480px; border-radius: 4px; display: flex; flex-direction: column; max-height: 90vh; }
+  .modal-header { flex-shrink: 0; background: var(--black); padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; border-radius: 4px 4px 0 0; }
+  .modal-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--yellow); letter-spacing: 3px; }
+  .modal-close { background: none; border: none; color: #777; font-size: 1.5rem; cursor: pointer; line-height: 1; }
+  .modal-close:hover { color: var(--white); }
+  .modal-body { padding: 2rem; overflow-y: auto; flex: 1; }
+  .modal-body label { display: block; font-size: .8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #777; margin-bottom: .4rem; margin-top: 1.25rem; }
+  .modal-body label:first-of-type { margin-top: 0; }
+  .modal-body input { width: 100%; border: 1.5px solid var(--gray); border-radius: 2px; padding: .7rem 1rem; font-family: 'Barlow', sans-serif; font-size: 1rem; outline: none; transition: border-color .2s; }
+  .modal-body input:focus { border-color: var(--black); }
+  .modal-submit { width: 100%; margin-top: 1.5rem; background: var(--black); color: var(--yellow); border: none; padding: .9rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .95rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity .2s; }
+  .modal-submit:hover { opacity: .85; }
+  .modal-error { color: var(--red-tag); font-size: .85rem; margin-top: .75rem; text-align: center; display: none; }
+
+  /* ─── ADMIN PANEL ─── */
+  #admin-panel { display: none; min-height: 100vh; background: #f4f4f2; }
+  .admin-nav { background: var(--black); padding: 0 2rem; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .admin-nav .nav-brand { font-size: 1.5rem; }
+  .admin-nav-right { display: flex; align-items: center; gap: 1rem; }
+  .admin-nav-right span { color: #777; font-size: .85rem; }
+  .logout-btn { background: none; border: 1.5px solid #444; color: #aaa; padding: .35rem .9rem; font-size: .8rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: .2s; }
+  .logout-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+  .admin-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .admin-section { background: var(--white); border-radius: 4px; border: 1.5px solid #e0e0e0; margin-bottom: 2rem; overflow: hidden; }
+  .admin-section-header { padding: 1.25rem 1.75rem; border-bottom: 1.5px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; }
+  .admin-section-header h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+  .admin-add-btn { background: var(--black); color: var(--white); border: none; padding: .5rem 1.2rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .8rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity .2s; }
+  .admin-add-btn:hover { opacity: .8; }
+  .admin-add-btn.green { background: var(--green); }
+  .admin-section-body { padding: 1.5rem 1.75rem; }
+
+  /* Product list in admin */
+  .admin-product-list { display: flex; flex-direction: column; gap: 1rem; }
+  .admin-product-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 1.5px solid #e8e8e8; border-radius: 3px; }
+  .admin-product-item img { width: 56px; height: 72px; object-fit: cover; border-radius: 2px; flex-shrink: 0; background: #eee; }
+  .admin-product-item .api-info { flex: 1; min-width: 0; }
+  .admin-product-item .api-info strong { display: block; font-weight: 700; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .admin-product-item .api-info span { font-size: .85rem; color: #777; }
+  .admin-product-item .api-actions { display: flex; gap: .5rem; flex-shrink: 0; }
+  .edit-btn { background: var(--yellow); color: var(--black); border: none; padding: .4rem .8rem; font-size: .75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; }
+  .del-btn { background: #fee; color: var(--red-tag); border: 1.5px solid #fcc; padding: .4rem .8rem; font-size: .75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; }
+
+  /* Admin form */
+  .admin-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .admin-form .full { grid-column: 1 / -1; }
+  .form-group label { display: block; font-size: .75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #888; margin-bottom: .4rem; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; border: 1.5px solid #ddd; border-radius: 2px; padding: .65rem .9rem; font-family: 'Barlow', sans-serif; font-size: .95rem; outline: none; transition: border-color .2s; resize: vertical; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--black); }
+  .form-save-btn { background: var(--black); color: var(--white); border: none; padding: .8rem 2rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .9rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity .2s; margin-top: .5rem; }
+  .form-save-btn:hover { opacity: .8; }
+  .form-save-btn.green { background: var(--green); }
+
+  /* Text blocks admin */
+  .text-blocks-admin { display: flex; flex-direction: column; gap: 1rem; }
+  .text-block-admin-item { border: 1.5px solid #e8e8e8; border-radius: 3px; padding: 1rem 1.25rem; }
+  .text-block-admin-item .tba-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; }
+  .text-block-admin-item strong { font-size: .9rem; font-weight: 700; }
+
+  /* Settings */
+  .settings-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .settings-row label { font-size: .8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #888; min-width: 120px; }
+  .settings-row input { border: 1.5px solid #ddd; border-radius: 2px; padding: .6rem .9rem; font-family: 'Barlow', sans-serif; font-size: .95rem; outline: none; flex: 1; min-width: 200px; transition: border-color .2s; }
+  .settings-row input:focus { border-color: var(--black); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .hamburger { display: flex; }
+    .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--black); flex-direction: column; padding: 1rem 2rem; gap: 1rem; }
+    .nav-links.open { display: flex; }
+    .detail-layout { grid-template-columns: 1fr; gap: 2rem; }
+    .admin-form { grid-template-columns: 1fr; }
+    .admin-form .full { grid-column: 1; }
+    .products-grid { padding: 0 1rem 3rem; }
+    .section-label { padding: 2rem 1rem 1rem; }
+    .text-blocks { padding: 0 1rem; }
+    .detail-layout { padding: 0 1rem 3rem; }
+    .detail-back { padding: 1rem 1rem; }
+    .admin-container { padding: 1rem; }
+    .band { padding: 2rem 1rem; }
+    nav { padding: 0 1rem; }
+  }
+
+  /* Upload button */
+  .upload-btn-label { display:inline-flex; align-items:center; gap:.5rem; background:var(--black); color:var(--white); padding:.5rem 1.1rem; font-size:.8rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; border-radius:2px; cursor:pointer; transition:opacity .2s; width:fit-content; }
+  .upload-btn-label:hover { opacity:.8; }
+
+  /* Color picker rows */
+  .color-row { display:flex; align-items:center; gap:.75rem; }
+  .color-row label { font-size:.75rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#888; flex:1; }
+  .color-row input[type=color] { width:44px; height:36px; border:1.5px solid #ddd; border-radius:3px; cursor:pointer; padding:2px; background:#fff; flex-shrink:0; }
+
+  /* ─── CATEGORY TABS ─── */
+  .cat-tabs { display:flex; gap:.5rem; flex-wrap:wrap; padding: 0 2.5rem 1.5rem; max-width:1200px; margin:0 auto; }
+  .cat-tab { padding:.5rem 1.25rem; font-size:.8rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; border:1.5px solid var(--black); background:transparent; color:var(--black); border-radius:2px; cursor:pointer; transition:background .18s,color .18s; white-space:nowrap; }
+  .cat-tab.active,.cat-tab:hover { background:var(--black); color:var(--white); }
+  @media(max-width:768px){ .cat-tabs { padding:0 1rem 1.25rem; } }
+
+  /* ─── SOLD OUT ─── */
+  .soldout-overlay { position:absolute; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:2; }
+  .soldout-label { background:#fff; color:#111; font-size:.75rem; font-weight:900; letter-spacing:3px; text-transform:uppercase; padding:.4rem 1rem; border-radius:2px; }
+  .product-card.soldout { opacity:.85; }
+  .wa-btn-mini.disabled { background:#ccc; cursor:not-allowed; pointer-events:none; }
+  .detail-soldout { background:#f5f5f5; border:1.5px solid #ddd; color:#888; text-align:center; padding:1rem; border-radius:3px; font-weight:700; letter-spacing:2px; text-transform:uppercase; font-size:.875rem; margin-bottom:1rem; }
+
+  /* ─── MISC ─── */
+  .page { display: block; }
+  .hidden { display: none !important; }
+  .tag-none { display: none; }
+  .img-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #e8e8e8 25%, #d8d8d8 100%); display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 2rem; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ NAV ════════════════════════ -->
+<nav id="main-nav">
+  <div class="nav-brand" onclick="showHome()" id="nav-brand-wrap">
+    <img id="nav-logo-img" class="nav-logo-img" src="" alt="Logo" style="display:none;">
+    <span id="nav-brand-text">THE LEMON CLUB</span>
+  </div>
+  <div class="nav-links" id="nav-links">
+    <a onclick="showHome(); closeNav()">Inicio</a>
+    <a onclick="scrollToProducts(); closeNav()">Productos</a>
+    <a onclick="openWA('Hola, quiero más información'); closeNav()">Contacto</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="admin-btn" onclick="openLoginModal()">Admin</button>
+    <div class="hamburger" onclick="toggleNav()" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════════════ HOME PAGE ════════════════════════ -->
+<div id="home-page">
+
+  <!-- HERO + MARQUEE -->
+  <section class="hero">
+    <div class="marquee-wrap">
+      <div class="marquee-track fwd" id="mq1"></div>
+    </div>
+    <div class="hero-center">
+      <div class="hero-eyebrow">Colección 2025</div>
+      <div id="brand-hero-wrap">
+        <div class="hero-brand-img-wrap" id="hero-img-wrap" style="display:none;">
+          <img id="hero-brand-img" class="hero-brand-img" src="" alt="The Lemon Club">
+        </div>
+        <div class="hero-title" id="brand-hero">THE LEMON CLUB</div>
+      </div>
+      <div class="hero-sub" id="hero-sub">Bolsos y accesorios con personalidad. Únicos, modernos y para ti.</div>
+      <a class="hero-cta" onclick="scrollToProducts()">Ver Catálogo ↓</a>
+    </div>
+    <div class="marquee-wrap">
+      <div class="marquee-track bwd" id="mq2"></div>
+    </div>
+    <div class="marquee-wrap">
+      <div class="marquee-track fwd2" id="mq3"></div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS SECTION -->
+  <div class="section-label" id="productos-section">
+    <h2>Productos</h2>
+    <span id="product-count">0 artículos</span>
+  </div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div class="products-grid" id="products-grid"></div>
+
+  <!-- BAND -->
+  <div class="band">
+    <p id="band-text">HECHO CON AMOR — ENVÍOS A TODO EL PAÍS — ESCRÍBENOS POR WHATSAPP</p>
+  </div>
+
+  <!-- TEXT BLOCKS -->
+  <div class="text-blocks" id="text-blocks-container"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="f-brand" id="footer-brand">THE LEMON CLUB</div>
+    <p id="footer-text">Bolsos y accesorios únicos • Contáctanos por WhatsApp</p>
+    <a class="wa-footer" onclick="openWA('Hola, quiero información sobre sus productos')">
+      💬 Escribir por WhatsApp
+    </a>
+  </footer>
+</div>
+
+<!-- ════════════════════════ DETAIL PAGE ════════════════════════ -->
+<div id="detail-page">
+  <div class="detail-back" onclick="showHome()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Volver al catálogo
+  </div>
+  <div class="detail-layout">
+    <div class="detail-gallery">
+      <div class="detail-main-img">
+        <img id="detail-main-img" src="" alt="">
+      </div>
+      <div class="detail-thumbs" id="detail-thumbs"></div>
+    </div>
+    <div class="detail-info">
+      <div id="detail-tag" class="detail-tag"></div>
+      <div class="detail-name" id="detail-name"></div>
+      <div class="detail-price"><span class="currency">$</span><span id="detail-price"></span></div>
+      <div class="detail-desc" id="detail-desc"></div>
+      <a class="wa-btn-main" id="detail-wa-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Consultar por WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ LOGIN MODAL ════════════════════════ -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Acceso Admin</h2>
+      <button class="modal-close" onclick="closeLoginModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="modal-submit" onclick="doLogin()">Entrar al Panel</button>
+      <div class="modal-error" id="login-error">Usuario o contraseña incorrectos</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ PRODUCT FORM MODAL ════════════════════════ -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal" style="max-width:620px;">
+    <div class="modal-header">
+      <h2 id="pform-title">Nuevo Producto</h2>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="admin-form">
+        <div class="form-group full">
+          <label>Nombre del producto</label>
+          <input type="text" id="pf-name" placeholder="Ej: Bolso Verde Croco">
+        </div>
+        <div class="form-group">
+          <label>Precio ($)</label>
+          <input type="number" id="pf-price" placeholder="0.00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Categoría</label>
+          <select id="pf-category"></select>
+        </div>
+        <div class="form-group">
+          <label>Etiqueta</label>
+          <select id="pf-tag">
+            <option value="">Sin etiqueta</option>
+            <option value="nuevo">Nuevo</option>
+            <option value="preventa">Preventa</option>
+            <option value="oferta">Oferta</option>
+          </select>
+        </div>
+        <div class="form-group full" style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;">
+          <input type="checkbox" id="pf-soldout" style="width:18px;height:18px;cursor:pointer;flex-shrink:0;">
+          <label style="margin:0;font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;cursor:pointer;" for="pf-soldout">Marcar como AGOTADO</label>
+        </div>
+        <div class="form-group full">
+          <label>Descripción</label>
+          <textarea id="pf-desc" rows="3" placeholder="Descripción corta del producto..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Imagen principal <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(recomendado 600×800 px)</span></label>
+          <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.25rem;">
+            <label class="upload-btn-label" for="upload-pf-img1" style="font-size:.75rem;padding:.45rem .9rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Subir foto
+            </label>
+            <input type="file" id="upload-pf-img1" accept="image/*" style="display:none;" onchange="handleProductImg(this,1)">
+            <img id="prev-pf-img1" style="display:none;height:56px;width:42px;object-fit:cover;border-radius:2px;border:1.5px solid #ddd;">
+            <button type="button" id="del-pf-img1" onclick="clearProductImg(1)" style="display:none;background:#fee;color:#c00;border:1.5px solid #fcc;padding:.3rem .6rem;font-size:.72rem;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:2px;">✕</button>
+          </div>
+          <input type="hidden" id="pf-img1">
+        </div>
+        <div class="form-group full">
+          <label>Imagen 2 <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(opcional)</span></label>
+          <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.25rem;">
+            <label class="upload-btn-label" for="upload-pf-img2" style="font-size:.75rem;padding:.45rem .9rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Subir foto
+            </label>
+            <input type="file" id="upload-pf-img2" accept="image/*" style="display:none;" onchange="handleProductImg(this,2)">
+            <img id="prev-pf-img2" style="display:none;height:56px;width:42px;object-fit:cover;border-radius:2px;border:1.5px solid #ddd;">
+            <button type="button" id="del-pf-img2" onclick="clearProductImg(2)" style="display:none;background:#fee;color:#c00;border:1.5px solid #fcc;padding:.3rem .6rem;font-size:.72rem;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:2px;">✕</button>
+          </div>
+          <input type="hidden" id="pf-img2">
+        </div>
+        <div class="form-group full">
+          <label>Imagen 3 <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(opcional)</span></label>
+          <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:.25rem;">
+            <label class="upload-btn-label" for="upload-pf-img3" style="font-size:.75rem;padding:.45rem .9rem;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Subir foto
+            </label>
+            <input type="file" id="upload-pf-img3" accept="image/*" style="display:none;" onchange="handleProductImg(this,3)">
+            <img id="prev-pf-img3" style="display:none;height:56px;width:42px;object-fit:cover;border-radius:2px;border:1.5px solid #ddd;">
+            <button type="button" id="del-pf-img3" onclick="clearProductImg(3)" style="display:none;background:#fee;color:#c00;border:1.5px solid #fcc;padding:.3rem .6rem;font-size:.72rem;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:2px;">✕</button>
+          </div>
+          <input type="hidden" id="pf-img3">
+        </div>
+      </div>
+      <button class="form-save-btn green" onclick="saveProduct()" style="margin-top:1.25rem;">Guardar Producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TEXT BLOCK FORM MODAL ════════════════════════ -->
+<div class="modal-overlay" id="textblock-modal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 id="tbform-title">Nuevo Bloque de Texto</h2>
+      <button class="modal-close" onclick="closeTextBlockModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Título</label>
+        <input type="text" id="tb-title" placeholder="Ej: Sobre Nosotras">
+      </div>
+      <div class="form-group" style="margin-top:1rem;">
+        <label>Texto</label>
+        <textarea id="tb-content" rows="5" placeholder="Escribe aquí el contenido de este bloque..."></textarea>
+      </div>
+      <button class="form-save-btn green" onclick="saveTextBlock()" style="margin-top:1.25rem;">Guardar Bloque</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ CATEGORY MODAL ════════════════════════ -->
+<div class="modal-overlay" id="cat-modal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h2>Nueva Categoría</h2>
+      <button class="modal-close" onclick="document.getElementById('cat-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <label>Nombre de la categoría</label>
+      <input type="text" id="cat-new-name" placeholder="Ej: Aretes, Pulseras, Mochilas...">
+      <button class="modal-submit" onclick="addCategory()" style="margin-top:1.25rem;">Agregar categoría</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ ADMIN PANEL ════════════════════════ -->
+<div id="admin-panel">
+  <nav class="admin-nav">
+    <div class="nav-brand">THE LEMON CLUB <span style="color:#555;font-size:1rem;letter-spacing:2px;">ADMIN</span></div>
+    <div class="admin-nav-right">
+      <span>Panel de administración</span>
+      <button class="logout-btn" onclick="doLogout()">Cerrar sesión</button>
+      <button class="admin-btn" onclick="doLogout(); showHome()">Ver tienda</button>
+    </div>
+  </nav>
+  <div class="admin-container">
+
+    <!-- SETTINGS -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>⚙ Configuración general</h3>
+        <button class="form-save-btn" onclick="saveSettings()" style="margin:0;padding:.5rem 1.2rem;font-size:.8rem;">Guardar</button>
+      </div>
+      <div class="admin-section-body">
+        <div class="settings-row">
+          <label>Nombre marca</label>
+          <input type="text" id="set-brand" placeholder="The Lemon Club">
+        </div>
+        <div class="settings-row">
+          <label>Tipografía</label>
+          <select id="set-font" style="border:1.5px solid #ddd;border-radius:2px;padding:.6rem .9rem;font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;flex:1;min-width:200px;background:#fff;cursor:pointer;">
+            <option value="Barlow">Barlow (actual)</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Poppins">Poppins</option>
+            <option value="Raleway">Raleway</option>
+            <option value="Nunito">Nunito</option>
+            <option value="Playfair Display">Playfair Display</option>
+            <option value="Lato">Lato</option>
+            <option value="Inter">Inter</option>
+            <option value="DM Sans">DM Sans</option>
+            <option value="Josefin Sans">Josefin Sans</option>
+            <option value="Outfit">Outfit</option>
+            <option value="Cormorant Garamond">Cormorant Garamond</option>
+          </select>
+        </div>
+        <div class="settings-row" style="align-items:flex-start;flex-wrap:wrap;gap:.75rem;">
+          <label style="padding-top:.5rem;">Logo (nav)</label>
+          <div style="display:flex;flex-direction:column;gap:.6rem;flex:1;min-width:200px;">
+            <label class="upload-btn-label" for="upload-logo">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Subir logo
+            </label>
+            <input type="file" id="upload-logo" accept="image/*" style="display:none;" onchange="handleImgUpload(this,'set-logo','preview-logo','btn-del-logo')">
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+              <img id="preview-logo" src="" alt="Vista previa logo" style="display:none;height:48px;width:auto;max-width:200px;object-fit:contain;border:1.5px solid #ddd;border-radius:3px;padding:4px;background:#fff;">
+              <button type="button" id="btn-del-logo" onclick="clearImg('set-logo','preview-logo','upload-logo','btn-del-logo')" style="display:none;background:#fee;color:#c00;border:1.5px solid #fcc;padding:.3rem .7rem;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;">✕ Eliminar</button>
+            </div>
+            <input type="hidden" id="set-logo">
+            <span style="font-size:.75rem;color:#aaa;">Esquina superior izquierda del nav</span>
+          </div>
+        </div>
+        <div class="settings-row" style="align-items:flex-start;flex-wrap:wrap;gap:.75rem;margin-top:.5rem;">
+          <label style="padding-top:.5rem;">Imagen marca (hero)</label>
+          <div style="display:flex;flex-direction:column;gap:.6rem;flex:1;min-width:200px;">
+            <label class="upload-btn-label" for="upload-brandimg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Subir imagen
+            </label>
+            <input type="file" id="upload-brandimg" accept="image/*" style="display:none;" onchange="handleImgUpload(this,'set-brandimg','preview-brandimg','btn-del-brandimg')">
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+              <img id="preview-brandimg" src="" alt="Vista previa imagen marca" style="display:none;width:100%;max-height:100px;object-fit:cover;border:1.5px solid #ddd;border-radius:3px;">
+              <button type="button" id="btn-del-brandimg" onclick="clearImg('set-brandimg','preview-brandimg','upload-brandimg','btn-del-brandimg')" style="display:none;background:#fee;color:#c00;border:1.5px solid #fcc;padding:.3rem .7rem;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;flex-shrink:0;">✕ Eliminar</button>
+            </div>
+            <input type="hidden" id="set-brandimg">
+            <span style="font-size:.75rem;color:#aaa;">Reemplaza el texto del nombre en el hero — se extiende de extremo a extremo</span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label>Subtítulo hero</label>
+          <input type="text" id="set-herosub" placeholder="Frase principal del hero">
+        </div>
+        <div class="settings-row">
+          <label>Nro WhatsApp</label>
+          <input type="text" id="set-wa" placeholder="51987654321 (con código de país)">
+        </div>
+        <div class="settings-row">
+          <label>Texto banda negra</label>
+          <input type="text" id="set-band" placeholder="Texto de la banda central">
+        </div>
+        <div class="settings-row">
+          <label>Texto footer</label>
+          <input type="text" id="set-footer" placeholder="Texto pie de página">
+        </div>
+        <div class="settings-row">
+          <label>Nueva contraseña</label>
+          <input type="password" id="set-newpass" placeholder="Dejar vacío para no cambiar">
+        </div>
+
+        <div style="border-top:1.5px solid #e8e8e8;margin-top:1.5rem;padding-top:1.5rem;">
+          <p style="font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:1.25rem;">🎨 Colores de la web</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
+            <div class="color-row"><label>Fondo nav / footer</label><input type="color" id="col-black" value="#0A0A0A"></div>
+            <div class="color-row"><label>Acento / botones</label><input type="color" id="col-yellow" value="#F5E642"></div>
+            <div class="color-row"><label>Botón WhatsApp</label><input type="color" id="col-green" value="#1DB954"></div>
+            <div class="color-row"><label>Fondo de página</label><input type="color" id="col-white" value="#FAFAFA"></div>
+            <div class="color-row"><label>Fondo hero</label><input type="color" id="col-hero" value="#F5E642"></div>
+            <div class="color-row"><label>Fondo banda central</label><input type="color" id="col-band" value="#0A0A0A"></div>
+            <div class="color-row"><label>Texto banda central</label><input type="color" id="col-band-text" value="#F5E642"></div>
+            <div class="color-row"><label>Fondo bloques texto</label><input type="color" id="col-gray" value="#E8E8E8"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>🏷 Categorías</h3>
+        <button class="admin-add-btn" onclick="document.getElementById('cat-modal').classList.add('open'); document.getElementById('cat-new-name').value=''">+ Nueva categoría</button>
+      </div>
+      <div class="admin-section-body">
+        <p style="font-size:.875rem;color:#888;margin-bottom:1rem;">Las categorías aparecen como pestañas en la tienda. "Todos" siempre está presente.</p>
+        <div id="admin-cat-list"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>👜 Productos</h3>
+        <button class="admin-add-btn" onclick="openProductModal()">+ Agregar producto</button>
+      </div>
+      <div class="admin-section-body">
+        <div class="admin-product-list" id="admin-product-list"></div>
+      </div>
+    </div>
+
+    <!-- TEXT BLOCKS -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>📝 Bloques de texto</h3>
+        <button class="admin-add-btn green" onclick="openTextBlockModal()">+ Agregar bloque</button>
+      </div>
+      <div class="admin-section-body">
+        <p style="font-size:.875rem;color:#888;margin-bottom:1rem;">Agrega secciones de texto libre (sobre nosotras, envíos, garantía, etc.)</p>
+        <div class="text-blocks-admin" id="admin-text-blocks"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════
+// FIREBASE SETUP
+// ═══════════════════════════════════════════════
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC91I0sFzvWYx47YfU0bC5S3rgrZ4Ypa3Y",
+  authDomain: "thelemonclub.firebaseapp.com",
+  projectId: "thelemonclub",
+  storageBucket: "thelemonclub.firebasestorage.app",
+  messagingSenderId: "832867282040",
+  appId: "1:832867282040:web:bedd54ec8f8f39a2c0518d"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ─── Refs ───
+const settingsRef = doc(db, 'store', 'settings');
+const categoriesRef = doc(db, 'store', 'categories');
+const productsCol = collection(db, 'products');
+const textBlocksCol = collection(db, 'textBlocks');
+
+// ─── In-memory store ───
+let store = {
+  settings: {
+    font: 'Barlow', brand: 'The Lemon Club', logo: '', brandImg: '',
+    heroSub: 'Bolsos y accesorios con personalidad. Únicos, modernos y para ti.',
+    wa: '51987654321',
+    band: 'HECHO CON AMOR — ENVÍOS A TODO EL PAÍS — ESCRÍBENOS POR WHATSAPP',
+    footer: 'Bolsos y accesorios únicos • Contáctanos por WhatsApp',
+    password: 'admin123',
+    colors: { black:'#0A0A0A', yellow:'#F5E642', green:'#1DB954', white:'#FAFAFA', hero:'#F5E642', band:'#0A0A0A', bandText:'#F5E642', gray:'#E8E8E8' }
+  },
+  categories: ['Todos','Collares','Ganchos','Correas'],
+  products: [],
+  textBlocks: []
+};
+
+let editingProductId = null;
+let editingTextBlockId = null;
+let isAdmin = false;
+let activeCategory = 'Todos';
+
+// ─── Loading screen ───
+document.getElementById('home-page').style.display = 'none';
+document.getElementById('main-nav').style.display = 'none';
+const loadingDiv = document.createElement('div');
+loadingDiv.id = 'loading-screen';
+loadingDiv.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;background:#0A0A0A;"><div style="font-family:'Bebas Neue',sans-serif;font-size:3rem;color:#F5E642;letter-spacing:8px;">THE LEMON CLUB</div><div style="color:#555;font-size:.85rem;letter-spacing:3px;text-transform:uppercase;">Cargando tienda...</div></div>`;
+document.body.prepend(loadingDiv);
+let loaded = false;
+function hideLoading() {
+  if (loaded) return; loaded = true;
+  const el = document.getElementById('loading-screen');
+  if (el) el.remove();
+  document.getElementById('main-nav').style.display = 'flex';
+  if (!isAdmin) { document.getElementById('home-page').style.display = 'block'; }
+}
+setTimeout(hideLoading, 4000);
+
+// ─── Firebase write helpers ───
+async function saveSettingsToFB(data) { await setDoc(settingsRef, data); }
+async function saveCategoriesToFB(cats) { await setDoc(categoriesRef, { list: cats }); }
+async function saveProductToFB(prod) { await setDoc(doc(db, 'products', String(prod.id)), prod); }
+async function deleteProductFromFB(id) { await deleteDoc(doc(db, 'products', String(id))); }
+async function saveTextBlockToFB(tb) { await setDoc(doc(db, 'textBlocks', String(tb.id)), tb); }
+async function deleteTextBlockFromFB(id) { await deleteDoc(doc(db, 'textBlocks', String(id))); }
+
+// ─── Bootstrap: real-time listeners ───
+function bootstrap() {
+  onSnapshot(settingsRef, snap => {
+    if (snap.exists()) store.settings = { ...store.settings, ...snap.data() };
+    if (loaded) renderHome();
+  });
+  onSnapshot(categoriesRef, snap => {
+    store.categories = snap.exists() ? (snap.data().list || ['Todos']) : ['Todos'];
+    if (!store.categories.includes('Todos')) store.categories.unshift('Todos');
+    renderCategoryTabs();
+    if (isAdmin) renderAdminCategories();
+  });
+  onSnapshot(productsCol, snap => {
+    store.products = snap.docs.map(d => d.data());
+    store.products.sort((a,b) => (a.id||0) - (b.id||0));
+    renderProducts();
+    if (isAdmin) renderAdminProducts();
+  });
+  let textLoaded = false;
+  onSnapshot(textBlocksCol, snap => {
+    store.textBlocks = snap.docs.map(d => d.data());
+    store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
+    renderTextBlocks();
+    if (isAdmin) renderAdminTextBlocks();
+    if (!textLoaded) { textLoaded = true; renderHome(); hideLoading(); }
+  });
+}
+bootstrap();
+
+// ═══════════════════════════════════════════════
+// WHATSAPP
+// ═══════════════════════════════════════════════
+function openWA(msg) {
+  const num = store.settings.wa;
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+window.openWA = openWA;
+
+// ═══════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════
+function toggleNav() { document.getElementById('nav-links').classList.toggle('open'); }
+function closeNav() { document.getElementById('nav-links').classList.remove('open'); }
+function scrollToProducts() {
+  showHome();
+  setTimeout(() => document.getElementById('productos-section').scrollIntoView({ behavior: 'smooth' }), 80);
+}
+window.toggleNav = toggleNav; window.closeNav = closeNav; window.scrollToProducts = scrollToProducts;
+
+// ═══════════════════════════════════════════════
+// PAGES
+// ═══════════════════════════════════════════════
+function showHome() {
+  document.getElementById('home-page').style.display = 'block';
+  document.getElementById('detail-page').style.display = 'none';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('main-nav').style.display = 'flex';
+  window.scrollTo(0,0);
+}
+function showDetail(id) {
+  const p = store.products.find(x => x.id == id);
+  if (!p) return;
+  document.getElementById('home-page').style.display = 'none';
+  document.getElementById('detail-page').style.display = 'block';
+  document.getElementById('admin-panel').style.display = 'none';
+  window.scrollTo(0,0);
+  document.getElementById('detail-name').textContent = p.name;
+  document.getElementById('detail-price').textContent = parseFloat(p.price).toFixed(2);
+  document.getElementById('detail-desc').textContent = p.desc;
+  const tagEl = document.getElementById('detail-tag');
+  if (p.tag) { tagEl.textContent = p.tag.charAt(0).toUpperCase()+p.tag.slice(1); tagEl.className='detail-tag tag-'+p.tag; tagEl.style.display='inline-block'; }
+  else { tagEl.style.display='none'; }
+  const imgs = (p.imgs||[]).filter(Boolean);
+  const mainImg = document.getElementById('detail-main-img');
+  mainImg.src = imgs[0]||''; mainImg.alt = p.name;
+  const thumbsEl = document.getElementById('detail-thumbs');
+  thumbsEl.innerHTML = '';
+  imgs.forEach((src,i) => {
+    const t = document.createElement('div');
+    t.className = 'detail-thumb'+(i===0?' active':'');
+    t.innerHTML = `<img src="${src}" alt="${p.name}">`;
+    t.onclick = () => { mainImg.src=src; document.querySelectorAll('.detail-thumb').forEach(x=>x.classList.remove('active')); t.classList.add('active'); };
+    thumbsEl.appendChild(t);
+  });
+  const waBtn = document.getElementById('detail-wa-btn');
+  if (p.soldOut) {
+    waBtn.style.display='none';
+    let so = document.getElementById('detail-soldout-msg');
+    if (!so) { so=document.createElement('div'); so.id='detail-soldout-msg'; so.className='detail-soldout'; waBtn.parentNode.insertBefore(so,waBtn); }
+    so.style.display='block'; so.textContent='⚠ Este producto está agotado';
+  } else {
+    waBtn.style.display='flex';
+    const so=document.getElementById('detail-soldout-msg'); if(so) so.style.display='none';
+    waBtn.onclick = () => openWA(`Hola, quiero información sobre: ${p.name}`);
+  }
+}
+function showAdmin() {
+  document.getElementById('home-page').style.display='none';
+  document.getElementById('detail-page').style.display='none';
+  document.getElementById('admin-panel').style.display='block';
+  document.getElementById('main-nav').style.display='none';
+  window.scrollTo(0,0);
+  renderAdmin();
+}
+window.showHome=showHome; window.showDetail=showDetail; window.showAdmin=showAdmin;
+
+// ═══════════════════════════════════════════════
+// MARQUEE
+// ═══════════════════════════════════════════════
+function buildMarquees() {
+  const brand = store.settings.brand;
+  const items = Array(20).fill(brand).map(b=>`<span class="marquee-item">${b}</span>`).join('');
+  ['mq1','mq2','mq3'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML=items+items; });
+}
+
+// ═══════════════════════════════════════════════
+// IMAGE UPLOAD
+// ═══════════════════════════════════════════════
+function handleImgUpload(input, hiddenId, previewId, delBtnId) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const b64 = e.target.result;
+    document.getElementById(hiddenId).value = b64;
+    const prev = document.getElementById(previewId);
+    prev.src=b64; prev.style.display='block';
+    if (delBtnId) document.getElementById(delBtnId).style.display='inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+function clearImg(hiddenId, previewId, fileInputId, delBtnId) {
+  document.getElementById(hiddenId).value='';
+  const prev=document.getElementById(previewId); prev.src=''; prev.style.display='none';
+  document.getElementById(fileInputId).value='';
+  if (delBtnId) document.getElementById(delBtnId).style.display='none';
+  const key = hiddenId==='set-logo'?'logo':'brandImg';
+  store.settings[key]='';
+  saveSettingsToFB(store.settings);
+  renderHome();
+}
+window.handleImgUpload=handleImgUpload; window.clearImg=clearImg;
+
+// ═══════════════════════════════════════════════
+// FONT + COLORS
+// ═══════════════════════════════════════════════
+function applyFont() {
+  const font = store.settings.font||'Barlow';
+  const slug = font.replace(/ /g,'+')+':wght@400;600;700;900';
+  let link = document.getElementById('dynamic-font-link');
+  if (!link) { link=document.createElement('link'); link.id='dynamic-font-link'; link.rel='stylesheet'; document.head.appendChild(link); }
+  link.href = `https://fonts.googleapis.com/css2?family=${slug}&display=swap`;
+  document.body.style.fontFamily = `'${font}', sans-serif`;
+}
+function applyColors() {
+  const c = store.settings.colors||{};
+  const r = document.documentElement.style;
+  if(c.black) r.setProperty('--black',c.black);
+  if(c.yellow) r.setProperty('--yellow',c.yellow);
+  if(c.green) r.setProperty('--green',c.green);
+  if(c.white) r.setProperty('--white',c.white);
+  if(c.gray) r.setProperty('--gray',c.gray);
+  const hero=document.querySelector('.hero'); if(hero&&c.hero) hero.style.background=c.hero;
+  const band=document.querySelector('.band'); if(band&&c.band) band.style.background=c.band;
+  const bandP=document.querySelector('.band p'); if(bandP&&c.bandText) bandP.style.color=c.bandText;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER HOME
+// ═══════════════════════════════════════════════
+function renderHome() {
+  const s = store.settings;
+  document.title = s.brand+' — Catálogo';
+  applyColors(); applyFont();
+  const navImg=document.getElementById('nav-logo-img'), navTxt=document.getElementById('nav-brand-text');
+  if(s.logo){navImg.src=s.logo;navImg.style.display='block';navTxt.style.display='none';}
+  else{navImg.style.display='none';navTxt.style.display='block';navTxt.textContent=s.brand;}
+  const heroWrap=document.getElementById('hero-img-wrap'),heroTxt=document.getElementById('brand-hero'),heroImg=document.getElementById('hero-brand-img');
+  if(s.brandImg){heroImg.src=s.brandImg;heroWrap.style.display='block';heroTxt.style.display='none';}
+  else{heroWrap.style.display='none';heroTxt.style.display='block';heroTxt.textContent=s.brand;}
+  const hs=document.getElementById('hero-sub'); if(hs) hs.textContent=s.heroSub;
+  const bt=document.getElementById('band-text'); if(bt) bt.textContent=s.band;
+  const ft=document.getElementById('footer-text'); if(ft) ft.textContent=s.footer;
+  const fb=document.getElementById('footer-brand'); if(fb) fb.textContent=s.brand;
+  buildMarquees(); renderCategoryTabs(); renderProducts(); renderTextBlocks();
+}
+
+function renderCategoryTabs() {
+  const el=document.getElementById('cat-tabs'); if(!el) return;
+  const cats=store.categories||['Todos'];
+  const all=cats.includes('Todos')?cats:['Todos',...cats];
+  el.innerHTML=all.map(c=>`<button class="cat-tab${c===activeCategory?' active':''}" onclick="filterCategory('${c.replace(/'/g,"\\'")}')"> ${c} </button>`).join('');
+}
+function filterCategory(cat) { activeCategory=cat; renderCategoryTabs(); renderProducts(); }
+window.filterCategory=filterCategory;
+
+function renderProducts() {
+  const grid=document.getElementById('products-grid'), count=document.getElementById('product-count');
+  if(!grid) return;
+  const filtered=activeCategory==='Todos'?store.products:store.products.filter(p=>p.category===activeCategory);
+  count.textContent=filtered.length+' artículos';
+  if(filtered.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;font-size:.95rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Sin productos en esta categoría</div>';return;}
+  grid.innerHTML=filtered.map(p=>{
+    const img=p.imgs&&p.imgs[0]?`<img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">`:`<div class="img-placeholder">📷</div>`;
+    const tag=p.tag?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
+    const soldOverlay=p.soldOut?`<div class="soldout-overlay"><span class="soldout-label">AGOTADO</span></div>`:'';
+    const waBtn=p.soldOut?`<a class="wa-btn-mini disabled">AGOTADO</a>`:`<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')">💬 Consultar</a>`;
+    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${parseFloat(p.price).toFixed(2)}</div>${waBtn}</div></div>`;
+  }).join('');
+}
+function renderTextBlocks() {
+  const el=document.getElementById('text-blocks-container'); if(!el) return;
+  if(store.textBlocks.length===0){el.innerHTML='';return;}
+  el.innerHTML='<div style="max-width:1200px;margin:0 auto;padding:0 2.5rem 3rem;">'+store.textBlocks.map(tb=>`<div class="text-block" style="margin-bottom:1.5rem;"><h3>${tb.title}</h3><p>${tb.content}</p></div>`).join('')+'</div>';
+}
+
+// ═══════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════
+function openLoginModal() {
+  if(isAdmin){showAdmin();return;}
+  document.getElementById('login-modal').classList.add('open');
+  document.getElementById('login-user').value=''; document.getElementById('login-pass').value='';
+  document.getElementById('login-error').style.display='none';
+}
+function closeLoginModal() { document.getElementById('login-modal').classList.remove('open'); }
+function doLogin() {
+  const u=document.getElementById('login-user').value.trim(), p=document.getElementById('login-pass').value;
+  if(u==='admin'&&p===store.settings.password){isAdmin=true;closeLoginModal();showAdmin();}
+  else{document.getElementById('login-error').style.display='block';}
+}
+function doLogout() { isAdmin=false; showHome(); }
+window.openLoginModal=openLoginModal; window.closeLoginModal=closeLoginModal; window.doLogin=doLogin; window.doLogout=doLogout;
+
+// ═══════════════════════════════════════════════
+// ADMIN RENDER
+// ═══════════════════════════════════════════════
+function renderAdmin() {
+  const s=store.settings;
+  document.getElementById('set-brand').value=s.brand;
+  document.getElementById('set-font').value=s.font||'Barlow';
+  document.getElementById('set-logo').value=s.logo||'';
+  document.getElementById('set-brandimg').value=s.brandImg||'';
+  const pl=document.getElementById('preview-logo'), dl=document.getElementById('btn-del-logo');
+  if(s.logo){pl.src=s.logo;pl.style.display='block';dl.style.display='inline-block';}else{pl.style.display='none';dl.style.display='none';}
+  const pb=document.getElementById('preview-brandimg'), db2=document.getElementById('btn-del-brandimg');
+  if(s.brandImg){pb.src=s.brandImg;pb.style.display='block';db2.style.display='inline-block';}else{pb.style.display='none';db2.style.display='none';}
+  document.getElementById('set-herosub').value=s.heroSub;
+  document.getElementById('set-wa').value=s.wa;
+  document.getElementById('set-band').value=s.band;
+  document.getElementById('set-footer').value=s.footer;
+  document.getElementById('set-newpass').value='';
+  const c=s.colors||{};
+  document.getElementById('col-black').value=c.black||'#0A0A0A';
+  document.getElementById('col-yellow').value=c.yellow||'#F5E642';
+  document.getElementById('col-green').value=c.green||'#1DB954';
+  document.getElementById('col-white').value=c.white||'#FAFAFA';
+  document.getElementById('col-hero').value=c.hero||'#F5E642';
+  document.getElementById('col-band').value=c.band||'#0A0A0A';
+  document.getElementById('col-band-text').value=c.bandText||'#F5E642';
+  document.getElementById('col-gray').value=c.gray||'#E8E8E8';
+  renderAdminProducts(); renderAdminCategories(); renderAdminTextBlocks();
+}
+
+function renderAdminProducts() {
+  const el=document.getElementById('admin-product-list'); if(!el) return;
+  if(store.products.length===0){el.innerHTML='<p style="color:#999;font-size:.875rem;">No hay productos. Agrega el primero.</p>';return;}
+  el.innerHTML=store.products.map(p=>`
+    <div class="admin-product-item">
+      <img src="${p.imgs&&p.imgs[0]?p.imgs[0]:''}" alt="${p.name}" onerror="this.style.background='#eee'">
+      <div class="api-info">
+        <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;">AGOTADO</span>':''}</strong>
+        <span>$ ${parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
+      </div>
+      <div class="api-actions">
+        <button class="edit-btn" onclick="openProductModal(${p.id})">Editar</button>
+        <button class="del-btn" onclick="deleteProduct(${p.id})">Borrar</button>
+      </div>
+    </div>`).join('');
+}
+function renderAdminCategories() {
+  const el=document.getElementById('admin-cat-list'); if(!el) return;
+  const cats=(store.categories||['Todos']).filter(c=>c!=='Todos');
+  if(cats.length===0){el.innerHTML='<p style="color:#999;font-size:.875rem;">Sin categorías adicionales.</p>';return;}
+  el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid #f0f0f0;"><span style="flex:1;font-weight:600;">${c}</span><button class="del-btn" onclick="deleteCategory('${c.replace(/'/g,"\\'")}')">Borrar</button></div>`).join('');
+}
+function renderAdminTextBlocks() {
+  const el=document.getElementById('admin-text-blocks'); if(!el) return;
+  if(store.textBlocks.length===0){el.innerHTML='<p style="color:#999;font-size:.875rem;">Sin bloques.</p>';return;}
+  el.innerHTML=store.textBlocks.map(tb=>`<div class="text-block-admin-item"><div class="tba-header"><strong>${tb.title}</strong><div style="display:flex;gap:.5rem;"><button class="edit-btn" onclick="openTextBlockModal(${tb.id})">Editar</button><button class="del-btn" onclick="deleteTextBlock(${tb.id})">Borrar</button></div></div><p style="font-size:.875rem;color:#666;">${tb.content.substring(0,120)}${tb.content.length>120?'…':''}</p></div>`).join('');
+}
+window.renderAdminProducts=renderAdminProducts;
+
+// ═══════════════════════════════════════════════
+// SETTINGS SAVE
+// ═══════════════════════════════════════════════
+async function saveSettings() {
+  const btn = document.querySelector('.admin-section-header .form-save-btn');
+  if(btn){btn.textContent='Guardando...';btn.disabled=true;}
+  store.settings.brand=document.getElementById('set-brand').value.trim()||'The Lemon Club';
+  store.settings.font=document.getElementById('set-font').value;
+  store.settings.logo=document.getElementById('set-logo').value.trim();
+  store.settings.brandImg=document.getElementById('set-brandimg').value.trim();
+  store.settings.heroSub=document.getElementById('set-herosub').value.trim();
+  store.settings.wa=document.getElementById('set-wa').value.trim();
+  store.settings.band=document.getElementById('set-band').value.trim();
+  store.settings.footer=document.getElementById('set-footer').value.trim();
+  const np=document.getElementById('set-newpass').value; if(np) store.settings.password=np;
+  store.settings.colors={
+    black:document.getElementById('col-black').value, yellow:document.getElementById('col-yellow').value,
+    green:document.getElementById('col-green').value, white:document.getElementById('col-white').value,
+    hero:document.getElementById('col-hero').value, band:document.getElementById('col-band').value,
+    bandText:document.getElementById('col-band-text').value, gray:document.getElementById('col-gray').value
+  };
+  await saveSettingsToFB(store.settings);
+  renderHome();
+  if(btn){btn.textContent='✓ Guardado';setTimeout(()=>{btn.textContent='Guardar';btn.disabled=false;},2000);}
+}
+window.saveSettings=saveSettings;
+
+// ═══════════════════════════════════════════════
+// PRODUCT CRUD
+// ═══════════════════════════════════════════════
+function openProductModal(id) {
+  editingProductId=id||null;
+  document.getElementById('pform-title').textContent=id?'Editar Producto':'Nuevo Producto';
+  const cats=(store.categories||['Todos']).filter(c=>c!=='Todos');
+  document.getElementById('pf-category').innerHTML='<option value="">Sin categoría</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  if(id){
+    const p=store.products.find(x=>x.id==id);
+    document.getElementById('pf-name').value=p.name;
+    document.getElementById('pf-price').value=p.price;
+    document.getElementById('pf-tag').value=p.tag||'';
+    document.getElementById('pf-category').value=p.category||'';
+    document.getElementById('pf-soldout').checked=!!p.soldOut;
+    document.getElementById('pf-desc').value=p.desc;
+    document.getElementById('pf-img1').value=(p.imgs&&p.imgs[0])||'';
+    document.getElementById('pf-img2').value=(p.imgs&&p.imgs[1])||'';
+    document.getElementById('pf-img3').value=(p.imgs&&p.imgs[2])||'';
+    [1,2,3].forEach(n=>restoreProductImgPreview(n,p.imgs&&p.imgs[n-1]));
+  } else {
+    ['pf-name','pf-price','pf-desc','pf-img1','pf-img2','pf-img3'].forEach(fid=>document.getElementById(fid).value='');
+    document.getElementById('pf-tag').value=''; document.getElementById('pf-category').value='';
+    document.getElementById('pf-soldout').checked=false;
+    [1,2,3].forEach(n=>clearProductImg(n));
+  }
+  document.getElementById('product-modal').classList.add('open');
+}
+function closeProductModal() { document.getElementById('product-modal').classList.remove('open'); }
+async function saveProduct() {
+  const name=document.getElementById('pf-name').value.trim(), price=parseFloat(document.getElementById('pf-price').value);
+  if(!name||isNaN(price)){alert('Completa nombre y precio');return;}
+  const imgs=[document.getElementById('pf-img1').value.trim(),document.getElementById('pf-img2').value.trim(),document.getElementById('pf-img3').value.trim()].filter(Boolean);
+  const prod={
+    name, price, tag:document.getElementById('pf-tag').value,
+    category:document.getElementById('pf-category').value,
+    soldOut:document.getElementById('pf-soldout').checked,
+    desc:document.getElementById('pf-desc').value.trim(), imgs,
+    id: editingProductId || Date.now()
+  };
+  const saveBtn = document.querySelector('#product-modal .form-save-btn');
+  if(saveBtn){saveBtn.textContent='Guardando...';saveBtn.disabled=true;}
+  await saveProductToFB(prod);
+  closeProductModal();
+  if(saveBtn){saveBtn.textContent='Guardar Producto';saveBtn.disabled=false;}
+}
+async function deleteProduct(id) {
+  if(!confirm('¿Eliminar este producto?')) return;
+  await deleteProductFromFB(id);
+}
+window.openProductModal=openProductModal; window.closeProductModal=closeProductModal;
+window.saveProduct=saveProduct; window.deleteProduct=deleteProduct;
+
+function handleProductImg(input, n) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const b64=e.target.result;
+    document.getElementById('pf-img'+n).value=b64;
+    const prev=document.getElementById('prev-pf-img'+n);
+    prev.src=b64; prev.style.display='block';
+    document.getElementById('del-pf-img'+n).style.display='inline-block';
+  };
+  reader.readAsDataURL(file);
+}
+function clearProductImg(n) {
+  document.getElementById('pf-img'+n).value='';
+  document.getElementById('upload-pf-img'+n).value='';
+  const prev=document.getElementById('prev-pf-img'+n);
+  prev.src=''; prev.style.display='none';
+  document.getElementById('del-pf-img'+n).style.display='none';
+}
+function restoreProductImgPreview(n, src) {
+  if(!src) { clearProductImg(n); return; }
+  const prev=document.getElementById('prev-pf-img'+n);
+  prev.src=src; prev.style.display='block';
+  document.getElementById('del-pf-img'+n).style.display='inline-block';
+}
+window.handleProductImg=handleProductImg; window.clearProductImg=clearProductImg;
+
+// ═══════════════════════════════════════════════
+// CATEGORY CRUD
+// ═══════════════════════════════════════════════
+async function addCategory() {
+  const name=document.getElementById('cat-new-name').value.trim();
+  if(!name){alert('Escribe el nombre');return;}
+  if(store.categories.includes(name)){alert('Esa categoría ya existe');return;}
+  const newCats=[...store.categories, name];
+  await saveCategoriesToFB(newCats);
+  document.getElementById('cat-new-name').value='';
+  document.getElementById('cat-modal').classList.remove('open');
+}
+async function deleteCategory(name) {
+  if(!confirm(`¿Eliminar la categoría "${name}"?`)) return;
+  const newCats=store.categories.filter(c=>c!==name);
+  // Remove category from products that use it
+  const prods=store.products.filter(p=>p.category===name);
+  for(const p of prods){ await saveProductToFB({...p, category:''}); }
+  await saveCategoriesToFB(newCats);
+}
+window.addCategory=addCategory; window.deleteCategory=deleteCategory;
+
+// ═══════════════════════════════════════════════
+// TEXT BLOCK CRUD
+// ═══════════════════════════════════════════════
+function openTextBlockModal(id) {
+  editingTextBlockId=id||null;
+  document.getElementById('tbform-title').textContent=id?'Editar Bloque':'Nuevo Bloque de Texto';
+  if(id){const tb=store.textBlocks.find(x=>x.id==id);document.getElementById('tb-title').value=tb.title;document.getElementById('tb-content').value=tb.content;}
+  else{document.getElementById('tb-title').value='';document.getElementById('tb-content').value='';}
+  document.getElementById('textblock-modal').classList.add('open');
+}
+function closeTextBlockModal() { document.getElementById('textblock-modal').classList.remove('open'); }
+async function saveTextBlock() {
+  const title=document.getElementById('tb-title').value.trim(), content=document.getElementById('tb-content').value.trim();
+  if(!title||!content){alert('Completa título y texto');return;}
+  const tb={ title, content, id: editingTextBlockId||Date.now() };
+  await saveTextBlockToFB(tb);
+  closeTextBlockModal();
+}
+async function deleteTextBlock(id) {
+  if(!confirm('¿Eliminar este bloque?')) return;
+  await deleteTextBlockFromFB(id);
+}
+window.openTextBlockModal=openTextBlockModal; window.closeTextBlockModal=closeTextBlockModal;
+window.saveTextBlock=saveTextBlock; window.deleteTextBlock=deleteTextBlock;
+
+// ─── Close modals on outside click ───
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+// cat modal close button
+const catModalBtn = document.querySelector('#cat-modal .modal-close');
+if(catModalBtn) catModalBtn.onclick = ()=>document.getElementById('cat-modal').classList.remove('open');
+// cat modal add on enter
+document.getElementById('cat-new-name').addEventListener('keydown', e=>{ if(e.key==='Enter') addCategory(); });
+</script>
+</body>
+</html>
