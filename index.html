@@ -332,7 +332,6 @@
 <!-- ════════════════════════ NAV ════════════════════════ -->
 <nav id="main-nav">
   <div class="nav-brand" onclick="showHome()" id="nav-brand-wrap">
-    <img id="nav-logo-img" class="nav-logo-img" src="" alt="Logo" style="display:none;">
     <span id="nav-brand-text">THE LEMON CLUB</span>
   </div>
   <div class="nav-links" id="nav-links">
@@ -361,7 +360,6 @@
       <div class="marquee-track fwd" id="mq1"></div>
     </div>
     <div class="hero-center">
-      <div class="hero-eyebrow">Colección 2025</div>
       <div id="brand-hero-wrap">
         <div class="hero-brand-img-wrap" id="hero-img-wrap" style="display:none;">
           <img id="hero-brand-img" class="hero-brand-img" src="" alt="The Lemon Club">
@@ -709,22 +707,6 @@
             The Lemon Club — Bolsos &amp; Accesorios
           </div>
         </div>
-        <div class="settings-row" style="align-items:flex-start;flex-wrap:wrap;gap:.75rem;">
-          <label style="padding-top:.5rem;">Logo (nav)</label>
-          <div style="display:flex;flex-direction:column;gap:.6rem;flex:1;min-width:200px;">
-            <label class="upload-btn-label" for="upload-logo">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Subir logo
-            </label>
-            <input type="file" id="upload-logo" accept="image/*" style="display:none;" onchange="handleImgUpload(this,'set-logo','preview-logo','btn-del-logo')">
-            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
-              <img id="preview-logo" src="" alt="Vista previa logo" style="display:none;height:48px;width:auto;max-width:200px;object-fit:contain;border:1.5px solid #ddd;border-radius:3px;padding:4px;background:#fff;">
-              <button type="button" id="btn-del-logo" onclick="clearImg('set-logo','preview-logo','upload-logo','btn-del-logo')" style="display:none;background:#fee;color:#c00;border:1.5px solid #fcc;padding:.3rem .7rem;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;">✕ Eliminar</button>
-            </div>
-            <input type="hidden" id="set-logo">
-            <span style="font-size:.75rem;color:#aaa;">Esquina superior izquierda del nav</span>
-          </div>
-        </div>
         <div class="settings-row" style="align-items:flex-start;flex-wrap:wrap;gap:.75rem;margin-top:.5rem;">
           <label style="padding-top:.5rem;">Imagen marca (hero)</label>
           <div style="display:flex;flex-direction:column;gap:.6rem;flex:1;min-width:200px;">
@@ -1013,17 +995,39 @@ function buildMarquees() {
 // ═══════════════════════════════════════════════
 // IMAGE UPLOAD
 // ═══════════════════════════════════════════════
-function handleImgUpload(input, hiddenId, previewId, delBtnId) {
-  const file = input.files[0]; if (!file) return;
+function compressImage(file, maxW, maxH, quality, callback) {
   const reader = new FileReader();
   reader.onload = e => {
-    const b64 = e.target.result;
-    document.getElementById(hiddenId).value = b64;
-    const prev = document.getElementById(previewId);
-    prev.src=b64; prev.style.display='block';
-    if (delBtnId) document.getElementById(delBtnId).style.display='inline-block';
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxW || h > maxH) {
+        const ratio = Math.min(maxW/w, maxH/h);
+        w = Math.round(w*ratio); h = Math.round(h*ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+function handleImgUpload(input, hiddenId, previewId, delBtnId) {
+  const file = input.files[0]; if (!file) return;
+  // Show loading state
+  const prev = document.getElementById(previewId);
+  prev.style.display='block'; prev.style.opacity='.4';
+  // Compress: hero image wider, logo smaller
+  const isHero = hiddenId === 'set-brandimg';
+  const maxW = isHero ? 1920 : 400, maxH = isHero ? 1080 : 200;
+  compressImage(file, maxW, maxH, 0.82, b64 => {
+    document.getElementById(hiddenId).value = b64;
+    prev.src = b64; prev.style.display='block'; prev.style.opacity='1';
+    if (delBtnId) document.getElementById(delBtnId).style.display='inline-block';
+  });
 }
 function clearImg(hiddenId, previewId, fileInputId, delBtnId) {
   document.getElementById(hiddenId).value='';
@@ -1081,9 +1085,8 @@ function renderHome() {
   const s = store.settings;
   document.title = s.brand+' — Catálogo';
   applyColors(); applyFont();
-  const navImg=document.getElementById('nav-logo-img'), navTxt=document.getElementById('nav-brand-text');
-  if(s.logo){navImg.src=s.logo;navImg.style.display='block';navTxt.style.display='none';}
-  else{navImg.style.display='none';navTxt.style.display='block';navTxt.textContent=s.brand;}
+  const navTxt=document.getElementById('nav-brand-text');
+  if(navTxt) navTxt.textContent=s.brand;
   const heroWrap=document.getElementById('hero-img-wrap'),heroTxt=document.getElementById('brand-hero'),heroImg=document.getElementById('hero-brand-img');
   if(s.brandImg){heroImg.src=s.brandImg;heroWrap.style.display='block';heroTxt.style.display='none';}
   else{heroWrap.style.display='none';heroTxt.style.display='block';heroTxt.textContent=s.brand;}
@@ -1148,10 +1151,7 @@ function renderAdmin() {
   const s=store.settings;
   document.getElementById('set-brand').value=s.brand;
   document.getElementById('set-font').value=s.font||'Barlow';
-  document.getElementById('set-logo').value=s.logo||'';
   document.getElementById('set-brandimg').value=s.brandImg||'';
-  const pl=document.getElementById('preview-logo'), dl=document.getElementById('btn-del-logo');
-  if(s.logo){pl.src=s.logo;pl.style.display='block';dl.style.display='inline-block';}else{pl.style.display='none';dl.style.display='none';}
   const pb=document.getElementById('preview-brandimg'), db2=document.getElementById('btn-del-brandimg');
   if(s.brandImg){pb.src=s.brandImg;pb.style.display='block';db2.style.display='inline-block';}else{pb.style.display='none';db2.style.display='none';}
   document.getElementById('set-herosub').value=s.heroSub;
@@ -1208,7 +1208,6 @@ async function saveSettings() {
   if(btn){btn.textContent='Guardando...';btn.disabled=true;}
   store.settings.brand=document.getElementById('set-brand').value.trim()||'The Lemon Club';
   store.settings.font=document.getElementById('set-font').value;
-  store.settings.logo=document.getElementById('set-logo').value.trim();
   store.settings.brandImg=document.getElementById('set-brandimg').value.trim();
   store.settings.heroSub=document.getElementById('set-herosub').value.trim();
   store.settings.wa=document.getElementById('set-wa').value.trim();
@@ -1282,15 +1281,13 @@ window.saveProduct=saveProduct; window.deleteProduct=deleteProduct;
 
 function handleProductImg(input, n) {
   const file=input.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const b64=e.target.result;
+  const prev=document.getElementById('prev-pf-img'+n);
+  prev.style.display='block'; prev.style.opacity='.4';
+  compressImage(file, 800, 1067, 0.82, b64 => {
     document.getElementById('pf-img'+n).value=b64;
-    const prev=document.getElementById('prev-pf-img'+n);
-    prev.src=b64; prev.style.display='block';
+    prev.src=b64; prev.style.display='block'; prev.style.opacity='1';
     document.getElementById('del-pf-img'+n).style.display='inline-block';
-  };
-  reader.readAsDataURL(file);
+  });
 }
 function clearProductImg(n) {
   document.getElementById('pf-img'+n).value='';
