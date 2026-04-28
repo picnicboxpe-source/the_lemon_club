@@ -811,6 +811,14 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
+// Prevent Firebase errors from causing blank page
+window.addEventListener('unhandledrejection', e => {
+  console.warn('Unhandled promise rejection:', e.reason);
+  e.preventDefault();
+  // Still show the page if loading
+  if (typeof hideLoading === 'function') hideLoading();
+});
+
 const firebaseConfig = {
   apiKey: "AIzaSyC91I0sFzvWYx47YfU0bC5S3rgrZ4Ypa3Y",
   authDomain: "thelemonclub.firebaseapp.com",
@@ -923,44 +931,63 @@ function adjustShade(hex, amount) {
 
 // ─── Bootstrap: real-time listeners ───
 function bootstrap() {
-  onSnapshot(settingsRef, snap => {
-    if (snap.exists()) {
-      store.settings = { ...store.settings, ...snap.data() };
-      // Update loading screen colors live if still showing
-      const li = document.getElementById('loading-inner');
-      if (li) {
-        const c = store.settings.colors || {};
-        const bg = c.green ? adjustShade(c.green, -60) : '#555D1D';
-        const txt = c.green ? adjustShade(c.green, 80) : '#e8eda0';
-        const sub = c.green ? adjustShade(c.green, 30) : '#b8c45a';
-        li.style.background = bg;
-        li.querySelectorAll('[data-ldot]').forEach(d => d.style.background = dot);
-        li.querySelector('[data-ltxt]') && (li.querySelector('[data-ltxt]').style.color = txt);
-        li.querySelector('[data-lsub]') && (li.querySelector('[data-lsub]').style.color = sub);
-      }
-    }
-    if (loaded) renderHome();
-  });
-  onSnapshot(categoriesRef, snap => {
-    store.categories = snap.exists() ? (snap.data().list || ['Todos']) : ['Todos'];
-    if (!store.categories.includes('Todos')) store.categories.unshift('Todos');
-    renderCategoryTabs();
-    if (isAdmin) renderAdminCategories();
-  });
-  onSnapshot(productsCol, snap => {
-    store.products = snap.docs.map(d => d.data());
-    store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
-    renderProducts();
-    if (isAdmin) renderAdminProducts();
-  });
+  try {
+    onSnapshot(settingsRef, snap => {
+      try {
+        if (snap.exists()) {
+          const data = snap.data();
+          // Update loading screen colors live if still showing
+          const li = document.getElementById('loading-inner');
+          if (li) {
+            const c = (data.colors)||{};
+            const bg = c.green ? adjustShade(c.green, -60) : '#555D1D';
+            const txt = c.green ? adjustShade(c.green, 80) : '#e8eda0';
+            const sub = c.green ? adjustShade(c.green, 30) : '#b8c45a';
+            li.style.background = bg;
+            li.querySelectorAll('[data-ltxt]').forEach(d => d.style.color = txt);
+            li.querySelectorAll('[data-lsub]').forEach(d => d.style.color = sub);
+          }
+          store.settings = { ...store.settings, ...data };
+        }
+        if (loaded) renderHome();
+      } catch(e) { console.warn('settings snap error', e); }
+    }, err => { console.warn('settings listener error:', err); hideLoading(); });
+  } catch(e) { console.warn('settings subscribe error', e); }
+
+  try {
+    onSnapshot(categoriesRef, snap => {
+      try {
+        store.categories = snap.exists() ? (snap.data().list || ['Todos']) : ['Todos'];
+        if (!store.categories.includes('Todos')) store.categories.unshift('Todos');
+        renderCategoryTabs();
+        if (isAdmin) renderAdminCategories();
+      } catch(e) { console.warn('categories snap error', e); }
+    }, err => console.warn('categories listener error:', err));
+  } catch(e) { console.warn('categories subscribe error', e); }
+
+  try {
+    onSnapshot(productsCol, snap => {
+      try {
+        store.products = snap.docs.map(d => d.data());
+        store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
+        renderProducts();
+        if (isAdmin) renderAdminProducts();
+      } catch(e) { console.warn('products snap error', e); }
+    }, err => console.warn('products listener error:', err));
+  } catch(e) { console.warn('products subscribe error', e); }
+
   let textLoaded = false;
-  onSnapshot(textBlocksCol, snap => {
-    store.textBlocks = snap.docs.map(d => d.data());
-    store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
-    renderTextBlocks();
-    if (isAdmin) renderAdminTextBlocks();
-    if (!textLoaded) { textLoaded = true; renderHome(); hideLoading(); }
-  });
+  try {
+    onSnapshot(textBlocksCol, snap => {
+      try {
+        store.textBlocks = snap.docs.map(d => d.data());
+        store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
+        renderTextBlocks();
+        if (isAdmin) renderAdminTextBlocks();
+        if (!textLoaded) { textLoaded = true; renderHome(); hideLoading(); }
+      } catch(e) { console.warn('textblocks snap error', e); if (!textLoaded) { textLoaded = true; hideLoading(); } }
+    }, err => { console.warn('textblocks listener error:', err); if (!textLoaded) { textLoaded = true; hideLoading(); } });
+  } catch(e) { console.warn('textblocks subscribe error', e); hideLoading(); }
 }
 bootstrap();
 
