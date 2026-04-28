@@ -1617,7 +1617,7 @@ function renderCart() {
       ${imgHtml}
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)} <span style="color:#bbb;font-size:.75rem;">(${item.qty} × $${item.price.toFixed(2)})</span></div>
+        <div class="cart-item-price">$ ${(item.price * item.qty).toFixed(2)} <span style="color:#bbb;font-size:.75rem;">(${item.qty} × $ ${item.price.toFixed(2)})</span></div>
         <div class="cart-item-controls">
           <button class="qty-btn" onclick="changeCartQty(${i},-1)">−</button>
           <span class="qty-num">${item.qty}</span>
@@ -1651,9 +1651,9 @@ function clearCart() {
 function sendCartToWA() {
   if (cart.length === 0) return;
   const brand = store.settings.brand || 'The Lemon Club';
-  const lines = cart.map(item => `  • ${item.name} × ${item.qty}  →  $${(item.price * item.qty).toFixed(2)}`);
+  const lines = cart.map(item => `  • ${item.name} × ${item.qty}  →  $ ${(item.price * item.qty).toFixed(2)}`);
   const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
-  const msg = `¡Hola! Quisiera hacer el siguiente pedido en ${brand}:\n\n${lines.join('\n')}\n\n💰 Total estimado: $${total.toFixed(2)}\n\n¿Cómo procedo para confirmar?`;
+  const msg = `¡Hola! Quisiera hacer el siguiente pedido en ${brand}:\n\n${lines.join('\n')}\n\n💰 Total estimado: $ ${total.toFixed(2)}\n\n¿Cómo procedo para confirmar?`;
   openWA(msg);
 }
 window.changeCartQty = changeCartQty; window.removeFromCart = removeFromCart;
