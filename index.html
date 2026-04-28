@@ -501,8 +501,8 @@
           <input type="text" id="pf-name" placeholder="Ej: Bolso Verde Croco">
         </div>
         <div class="form-group">
-          <label>Precio <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(ej: 5.00 / 2 x 5 / Desde 8)</span></label>
-          <input type="text" id="pf-price" placeholder="ej: 5.00">
+          <label>Precio <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(ej: 5.00 / 2x5 / Desde 8)</span></label>
+          <input type="text" id="pf-price" placeholder="ej: 5.00 o 2x5">
         </div>
         <div class="form-group">
           <label>Categoría</label>
@@ -1043,7 +1043,7 @@ function showDetail(id) {
   const _dqn = document.getElementById('detail-qty-num'); if(_dqn) _dqn.textContent = '1';
   const _dadd = document.getElementById('detail-add-cart-btn'); if(_dadd){ _dadd.textContent='+ Agregar al carrito'; _dadd.classList.remove('added'); }
   document.getElementById('detail-name').textContent = p.name;
-  document.getElementById('detail-price').textContent = p.priceText||parseFloat(p.price).toFixed(2);
+  document.getElementById('detail-price').innerHTML = formatPriceDisplay(p);
   document.getElementById('detail-desc').textContent = p.desc;
   const tagEl = document.getElementById('detail-tag');
   // Show product tag OR stock warning (low stock), not both
@@ -1228,13 +1228,29 @@ function renderCategoryTabs() {
 function filterCategory(cat) { activeCategory=cat; renderCategoryTabs(); renderProducts(); }
 window.filterCategory=filterCategory;
 
+function formatPriceDisplay(p) {
+  const txt = (p.priceText || '').trim();
+  // Detect bundle: "2x5", "2 x 5", "2X5"
+  const bundle = txt.match(/^(\d+)\s*[xX×]\s*(\d+[\d.]*)$/);
+  if (bundle) {
+    return `<span style="font-size:.82rem;color:#777;font-weight:600;">${bundle[1]} und ×</span> <span class="currency">$</span>${parseFloat(bundle[2]).toFixed(2)}`;
+  }
+  // "Desde 8" or plain number
+  const desde = txt.match(/^[Dd]esde\s+(\d+[\d.]*)/);
+  if (desde) {
+    return `<span style="font-size:.82rem;color:#777;font-weight:600;">Desde</span> <span class="currency">$</span>${parseFloat(desde[1]).toFixed(2)}`;
+  }
+  return `<span class="currency">$</span>${txt || parseFloat(p.price||0).toFixed(2)}`;
+}
+
 function renderProducts() {
   const grid=document.getElementById('products-grid'), count=document.getElementById('product-count');
   if(!grid) return;
   const filtered=activeCategory==='Todos'?store.products:store.products.filter(p=>p.category===activeCategory);
   count.textContent=filtered.length+' artículos';
   if(filtered.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;font-size:.95rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Sin productos en esta categoría</div>';return;}
-  grid.innerHTML=filtered.map(p=>{
+
+  function buildCard(p) {
     const img=p.imgs&&p.imgs[0]?`<img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">`:`<div class="img-placeholder">📷</div>`;
     const tag=p.tag?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
     const stockTag = p.stock==='low'
@@ -1250,8 +1266,24 @@ function renderProducts() {
     const waBtn=p.soldOut
       ? `<a class="wa-btn-mini disabled">AGOTADO</a>`
       : `<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')" >💬 Consultar</a><button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">+ Agregar al carrito</button>`;
-    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${p.priceText||parseFloat(p.price).toFixed(2)}${p.showCu!==false?' <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span>':''}</div>${waBtn}</div></div>`;
-  }).join('');
+    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price">${formatPriceDisplay(p)}${p.showCu!==false?' <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span>':''}</div>${waBtn}</div></div>`;
+  }
+
+  const CHUNK = 12;
+  // Render first chunk immediately
+  grid.innerHTML = filtered.slice(0, CHUNK).map(buildCard).join('');
+  // Render the rest in small async chunks so the page stays responsive
+  if (filtered.length > CHUNK) {
+    let i = CHUNK;
+    function renderNext() {
+      if (i >= filtered.length) return;
+      const fragment = filtered.slice(i, i + CHUNK).map(buildCard).join('');
+      grid.insertAdjacentHTML('beforeend', fragment);
+      i += CHUNK;
+      if (i < filtered.length) requestAnimationFrame(renderNext);
+    }
+    requestAnimationFrame(renderNext);
+  }
 }
 function renderTextBlocks() {
   const el=document.getElementById('text-blocks-container'); if(!el) return;
@@ -1517,14 +1549,10 @@ function closeCart() {
 window.openCart = openCart; window.closeCart = closeCart;
 
 function parseUnitPrice(p) {
-  // Handles: "2 x 5" → 2.50 per unit, "5.00" → 5.00, "Desde 8" → 8
   const txt = (p.priceText || String(p.price || 0)).trim();
-  const bundle = txt.match(/(\d+[\d.,]*)\s*[xX×]\s*(\d+[\d.,]*)/);
-  if (bundle) {
-    const qty = parseFloat(bundle[1]);
-    const total = parseFloat(bundle[2]);
-    return (qty > 0) ? total / qty : total;
-  }
+  // Bundle "2x5" → 1 pack costs $5 (the total, not divided)
+  const bundle = txt.match(/^(\d+)\s*[xX×]\s*(\d+[\d.]*)$/);
+  if (bundle) return parseFloat(bundle[2]);
   return parseFloat(txt) || parseFloat(p.price) || 0;
 }
 
