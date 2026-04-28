@@ -98,6 +98,7 @@
   .tag-preventa { background: var(--black); color: var(--yellow); }
   .tag-oferta { background: var(--red-tag); color: var(--white); }
   .tag-low { background: #FF8C00; color: #fff; }
+  .tag-last { background: #E05A00; color: #fff; }
   .tag-unique { background: #D0021B; color: #fff; animation: pulse-unique 1.8s ease-in-out infinite; }
   @keyframes pulse-unique { 0%,100%{opacity:1} 50%{opacity:.72} }
   .product-info { padding: 1.1rem 1.25rem 1.4rem; }
@@ -342,7 +343,7 @@
 <!-- ════════════════════════ NAV ════════════════════════ -->
 <nav id="main-nav">
   <div class="nav-brand" onclick="showHome()" id="nav-brand-wrap">
-    <span id="nav-brand-text"></span>
+    <span id="nav-brand-text" style="visibility:hidden;"></span>
   </div>
   <div class="nav-links" id="nav-links">
     <a onclick="showHome(); closeNav()">Inicio</a>
@@ -370,13 +371,13 @@
   <!-- HERO + MARQUEE -->
   <section class="hero">
     <div class="hero-center">
-      <div id="brand-hero-wrap">
+      <div id="brand-hero-wrap" style="visibility:hidden;">
         <div class="hero-brand-img-wrap" id="hero-img-wrap" style="display:none;">
           <img id="hero-brand-img" class="hero-brand-img" src="" alt="The Lemon Club">
         </div>
-        <div class="hero-title" id="brand-hero">THE LEMON CLUB</div>
+        <div class="hero-title" id="brand-hero"></div>
       </div>
-      <div class="hero-sub" id="hero-sub">Bolsos y accesorios con personalidad. Únicos, modernos y para ti.</div>
+      <div class="hero-sub" id="hero-sub" style="visibility:hidden;"></div>
       <a class="hero-cta" onclick="scrollToProducts()">Ver Catálogo ↓</a>
     </div>
     <div class="marquee-wrap">
@@ -522,9 +523,16 @@
             <option value="available">✅ Disponible</option>
             <option value="collection">✨ Única Colección</option>
             <option value="unique">🔴 Pieza única</option>
+            <option value="last">🟠 Última Pieza</option>
             <option value="low">⚠️ Pocas unidades</option>
             <option value="soldout">❌ Agotado</option>
           </select>
+        </div>
+        <div class="form-group full">
+          <label style="display:flex;align-items:center;gap:.6rem;cursor:pointer;text-transform:none;letter-spacing:0;font-size:.85rem;color:#555;font-weight:600;">
+            <input type="checkbox" id="pf-show-cu" style="width:16px;height:16px;cursor:pointer;accent-color:#0A0A0A;flex-shrink:0;">
+            Mostrar <em style="font-style:normal;font-weight:700;">c/u</em> junto al precio en la tarjeta
+          </label>
         </div>
         <div class="form-group full">
           <label>Descripción</label>
@@ -627,7 +635,7 @@
     <div class="admin-section">
       <div class="admin-section-header">
         <h3>⚙ Configuración general</h3>
-        <button class="form-save-btn" onclick="saveSettings()" style="margin:0;padding:.5rem 1.2rem;font-size:.8rem;">Guardar</button>
+        <button class="form-save-btn" id="save-settings-btn" onclick="saveSettings()" style="margin:0;padding:.5rem 1.2rem;font-size:.8rem;">Guardar</button>
       </div>
       <div class="admin-section-body">
         <div class="settings-row">
@@ -761,6 +769,7 @@
           <input type="password" id="set-newpass" placeholder="Dejar vacío para no cambiar">
         </div>
 
+
         <div style="border-top:1.5px solid #e8e8e8;margin-top:1.5rem;padding-top:1.5rem;">
           <p style="font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:1.25rem;">🎨 Colores de la web</p>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
@@ -869,6 +878,28 @@ try {
     if (c.white)  r.setProperty('--white', c.white);
     if (c.gray)   r.setProperty('--gray', c.gray);
     if (s.font) document.body.style.fontFamily = `'${s.font}', sans-serif`;
+    // Preload hero image from cache to avoid slow reveal
+    if (s.brandImg) {
+      const heroImg = document.getElementById('hero-brand-img');
+      const heroWrap = document.getElementById('hero-img-wrap');
+      const heroTxt = document.getElementById('brand-hero');
+      if (heroImg && heroWrap) {
+        heroImg.src = s.brandImg;
+        heroWrap.style.display = 'block';
+        if (heroTxt) heroTxt.style.display = 'none';
+      }
+    } else {
+      const heroTxt = document.getElementById('brand-hero');
+      if (heroTxt) heroTxt.textContent = s.brand || '';
+    }
+    const hs = document.getElementById('hero-sub');
+    if (hs && s.heroSub) hs.textContent = s.heroSub;
+    // Reveal hero immediately since we have cached data
+    const bhw = document.getElementById('brand-hero-wrap');
+    if (bhw) bhw.style.visibility = 'visible';
+    if (hs) hs.style.visibility = 'visible';
+    const navTxt = document.getElementById('nav-brand-text');
+    if (navTxt) { navTxt.textContent = s.navBrand !== undefined ? s.navBrand : ''; navTxt.style.visibility = 'visible'; }
   }
   const cachedCats = localStorage.getItem('tlc_categories');
   if (cachedCats) store.categories = JSON.parse(cachedCats);
@@ -1019,6 +1050,10 @@ function showDetail(id) {
   if (p.stock === 'unique' && !p.soldOut) {
     tagEl.textContent = '🔴 Pieza única';
     tagEl.className = 'detail-tag tag-unique';
+    tagEl.style.display = 'inline-block';
+  } else if (p.stock === 'last' && !p.soldOut) {
+    tagEl.textContent = '🟠 Última Pieza';
+    tagEl.className = 'detail-tag tag-last';
     tagEl.style.display = 'inline-block';
   } else if (p.stock === 'collection' && !p.soldOut) {
     tagEl.textContent = '✨ Única Colección';
@@ -1172,12 +1207,12 @@ function renderHome() {
   const s = store.settings;
   document.title = s.brand+' — Catálogo';
   applyColors(); applyFont();
-  const navTxt=document.getElementById('nav-brand-text');
-  if(navTxt) navTxt.textContent = (s.navBrand !== undefined ? s.navBrand : '');
+  if(navTxt) { navTxt.textContent = (s.navBrand !== undefined ? s.navBrand : ''); navTxt.style.visibility = 'visible'; }
   const heroWrap=document.getElementById('hero-img-wrap'),heroTxt=document.getElementById('brand-hero'),heroImg=document.getElementById('hero-brand-img');
   if(s.brandImg){heroImg.src=s.brandImg;heroWrap.style.display='block';heroTxt.style.display='none';}
   else{heroWrap.style.display='none';heroTxt.style.display='block';heroTxt.textContent=s.brand;}
-  const hs=document.getElementById('hero-sub'); if(hs) hs.textContent=s.heroSub;
+  const hs=document.getElementById('hero-sub'); if(hs) { hs.textContent=s.heroSub; hs.style.visibility='visible'; }
+  const bhw=document.getElementById('brand-hero-wrap'); if(bhw) bhw.style.visibility='visible';
   const bt=document.getElementById('band-text'); if(bt) bt.textContent=s.band;
   const ft=document.getElementById('footer-text'); if(ft) ft.textContent=s.footer;
   const fb=document.getElementById('footer-brand'); if(fb) fb.textContent=s.brand;
@@ -1204,16 +1239,18 @@ function renderProducts() {
     const tag=p.tag?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
     const stockTag = p.stock==='low'
       ? `<span class="product-tag tag-low" style="position:absolute;bottom:10px;left:10px;top:auto;">Pocas unidades</span>`
-      : p.stock==='unique'
-        ? `<span class="product-tag tag-unique" style="position:absolute;bottom:10px;left:10px;top:auto;">🔴 Pieza única</span>`
-        : p.stock==='collection'
-          ? `<span class="product-tag tag-collection" style="position:absolute;bottom:10px;left:10px;top:auto;">✨ Única Colección</span>`
-          : '';
+      : p.stock==='last'
+        ? `<span class="product-tag tag-last" style="position:absolute;bottom:10px;left:10px;top:auto;">🟠 Última Pieza</span>`
+        : p.stock==='unique'
+          ? `<span class="product-tag tag-unique" style="position:absolute;bottom:10px;left:10px;top:auto;">🔴 Pieza única</span>`
+          : p.stock==='collection'
+            ? `<span class="product-tag tag-collection" style="position:absolute;bottom:10px;left:10px;top:auto;">✨ Única Colección</span>`
+            : '';
     const soldOverlay=p.soldOut?`<div class="soldout-overlay"><span class="soldout-label">AGOTADO</span></div>`:'';
     const waBtn=p.soldOut
       ? `<a class="wa-btn-mini disabled">AGOTADO</a>`
       : `<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')" >💬 Consultar</a><button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">+ Agregar al carrito</button>`;
-    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${p.priceText||parseFloat(p.price).toFixed(2)} <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span></div>${waBtn}</div></div>`;
+    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${p.priceText||parseFloat(p.price).toFixed(2)}${p.showCu!==false?' <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span>':''}</div>${waBtn}</div></div>`;
   }).join('');
 }
 function renderTextBlocks() {
@@ -1275,7 +1312,7 @@ function renderAdminProducts() {
     <div class="admin-product-item">
       <img src="${p.imgs&&p.imgs[0]?p.imgs[0]:''}" alt="${p.name}" onerror="this.style.background='#eee'">
       <div class="api-info">
-        <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;font-weight:900;">AGOTADO</span>':p.stock==='unique'?' <span style="color:#D0021B;font-size:.7rem;font-weight:900;">PIEZA ÚNICA</span>':p.stock==='collection'?' <span style="color:#6B2D8B;font-size:.7rem;font-weight:900;">ÚNICA COLECCIÓN</span>':p.stock==='low'?' <span style="color:#FF8C00;font-size:.7rem;font-weight:900;">POCAS</span>':''}</strong>
+        <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;font-weight:900;">AGOTADO</span>':p.stock==='unique'?' <span style="color:#D0021B;font-size:.7rem;font-weight:900;">PIEZA ÚNICA</span>':p.stock==='last'?' <span style="color:#E05A00;font-size:.7rem;font-weight:900;">ÚLTIMA PIEZA</span>':p.stock==='collection'?' <span style="color:#6B2D8B;font-size:.7rem;font-weight:900;">ÚNICA COLECCIÓN</span>':p.stock==='low'?' <span style="color:#FF8C00;font-size:.7rem;font-weight:900;">POCAS</span>':''}</strong>
         <span>$ ${p.priceText||parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
       </div>
       <div class="api-actions">
@@ -1301,26 +1338,32 @@ window.renderAdminProducts=renderAdminProducts;
 // SETTINGS SAVE
 // ═══════════════════════════════════════════════
 async function saveSettings() {
-  const btn = document.querySelector('.admin-section-header .form-save-btn');
+  const btn = document.getElementById('save-settings-btn');
   if(btn){btn.textContent='Guardando...';btn.disabled=true;}
-  store.settings.brand=document.getElementById('set-brand').value.trim()||'The Lemon Club';
-  store.settings.navBrand=document.getElementById('set-navbrand').value;
-  store.settings.font=document.getElementById('set-font').value;
-  store.settings.brandImg=document.getElementById('set-brandimg').value.trim();
-  store.settings.heroSub=document.getElementById('set-herosub').value.trim();
-  store.settings.wa=document.getElementById('set-wa').value.trim();
-  store.settings.band=document.getElementById('set-band').value.trim();
-  store.settings.footer=document.getElementById('set-footer').value.trim();
-  const np=document.getElementById('set-newpass').value; if(np) store.settings.password=np;
-  store.settings.colors={
-    black:document.getElementById('col-black').value, yellow:document.getElementById('col-yellow').value,
-    green:document.getElementById('col-green').value, white:document.getElementById('col-white').value,
-    hero:document.getElementById('col-hero').value, band:document.getElementById('col-band').value,
-    bandText:document.getElementById('col-band-text').value, gray:document.getElementById('col-gray').value
-  };
-  await saveSettingsToFB(store.settings);
-  renderHome();
-  if(btn){btn.textContent='✓ Guardado';setTimeout(()=>{btn.textContent='Guardar';btn.disabled=false;},2000);}
+  try {
+    store.settings.brand=document.getElementById('set-brand').value.trim()||'The Lemon Club';
+    store.settings.navBrand=document.getElementById('set-navbrand').value;
+    store.settings.font=document.getElementById('set-font').value;
+    store.settings.brandImg=document.getElementById('set-brandimg').value.trim();
+    store.settings.heroSub=document.getElementById('set-herosub').value.trim();
+    store.settings.wa=document.getElementById('set-wa').value.trim();
+    store.settings.band=document.getElementById('set-band').value.trim();
+    store.settings.footer=document.getElementById('set-footer').value.trim();
+    const np=document.getElementById('set-newpass').value; if(np) store.settings.password=np;
+    store.settings.colors={
+      black:document.getElementById('col-black').value, yellow:document.getElementById('col-yellow').value,
+      green:document.getElementById('col-green').value, white:document.getElementById('col-white').value,
+      hero:document.getElementById('col-hero').value, band:document.getElementById('col-band').value,
+      bandText:document.getElementById('col-band-text').value, gray:document.getElementById('col-gray').value
+    };
+    await saveSettingsToFB(store.settings);
+    renderHome();
+  } catch(e) {
+    console.error('Error guardando configuración:', e);
+  } finally {
+    const b = document.getElementById('save-settings-btn');
+    if(b){b.textContent='✓ Guardado';b.disabled=false;setTimeout(()=>{const b2=document.getElementById('save-settings-btn');if(b2)b2.textContent='Guardar';},2000);}
+  }
 }
 window.saveSettings=saveSettings;
 
@@ -1339,6 +1382,7 @@ function openProductModal(id) {
     document.getElementById('pf-tag').value=p.tag||'';
     document.getElementById('pf-category').value=p.category||'';
     document.getElementById('pf-stock').value = p.soldOut ? 'soldout' : (p.stock || 'available');
+    document.getElementById('pf-show-cu').checked = p.showCu !== false;
     document.getElementById('pf-desc').value=p.desc;
     document.getElementById('pf-img1').value=(p.imgs&&p.imgs[0])||'';
     document.getElementById('pf-img2').value=(p.imgs&&p.imgs[1])||'';
@@ -1348,6 +1392,7 @@ function openProductModal(id) {
     ['pf-name','pf-price','pf-desc','pf-img1','pf-img2','pf-img3'].forEach(fid=>document.getElementById(fid).value='');
     document.getElementById('pf-tag').value=''; document.getElementById('pf-category').value='';
     document.getElementById('pf-stock').value='available';
+    document.getElementById('pf-show-cu').checked=true;
     [1,2,3].forEach(n=>clearProductImg(n));
   }
   document.getElementById('product-modal').classList.add('open');
@@ -1363,6 +1408,7 @@ async function saveProduct() {
     category:document.getElementById('pf-category').value,
     soldOut: document.getElementById('pf-stock').value === 'soldout',
     stock: document.getElementById('pf-stock').value,
+    showCu: document.getElementById('pf-show-cu').checked,
     desc:document.getElementById('pf-desc').value.trim(), imgs,
     id: editingProductId || Date.now()
   };
