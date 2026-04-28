@@ -1516,13 +1516,25 @@ function closeCart() {
 }
 window.openCart = openCart; window.closeCart = closeCart;
 
+function parseUnitPrice(p) {
+  // Handles: "2 x 5" → 2.50 per unit, "5.00" → 5.00, "Desde 8" → 8
+  const txt = (p.priceText || String(p.price || 0)).trim();
+  const bundle = txt.match(/(\d+[\d.,]*)\s*[xX×]\s*(\d+[\d.,]*)/);
+  if (bundle) {
+    const qty = parseFloat(bundle[1]);
+    const total = parseFloat(bundle[2]);
+    return (qty > 0) ? total / qty : total;
+  }
+  return parseFloat(txt) || parseFloat(p.price) || 0;
+}
+
 function addToCart(productId, qty) {
   qty = qty || 1;
   const p = store.products.find(x => x.id == productId);
   if (!p || p.soldOut) return;
   const existing = cart.find(c => c.id == productId);
   if (existing) { existing.qty += qty; }
-  else { cart.push({ id: p.id, name: p.name, price: parseFloat(p.price), img: (p.imgs && p.imgs[0]) || '', qty }); }
+  else { cart.push({ id: p.id, name: p.name, price: parseUnitPrice(p), img: (p.imgs && p.imgs[0]) || '', qty }); }
   updateCartBadge();
 }
 window.addToCart = addToCart;
