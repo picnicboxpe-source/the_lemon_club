@@ -56,9 +56,9 @@
 
   .marquee-wrap { overflow: hidden; width: 100%; margin: .5rem 0; }
   .marquee-track { display: flex; white-space: nowrap; }
-  .marquee-track.fwd { animation: marquee-fwd 9s linear infinite; }
-  .marquee-track.bwd { animation: marquee-bwd 9s linear infinite; }
-  .marquee-track.fwd2 { animation: marquee-fwd 7s linear infinite; }
+  .marquee-track.fwd { animation: marquee-fwd 6s linear infinite; }
+  .marquee-track.bwd { animation: marquee-bwd 6s linear infinite; }
+  .marquee-track.fwd2 { animation: marquee-fwd 5s linear infinite; }
   .marquee-item { font-family: 'Bebas Neue', sans-serif; font-size: 5.5rem; color: rgba(0,0,0,.1); letter-spacing: 8px; padding: 0 1.5rem; user-select: none; }
   @keyframes marquee-fwd { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   @keyframes marquee-bwd { from { transform: translateX(-50%); } to { transform: translateX(0); } }
@@ -951,7 +951,7 @@ function bootstrap() {
   });
   onSnapshot(productsCol, snap => {
     store.products = snap.docs.map(d => d.data());
-    store.products.sort((a,b) => (a.id||0) - (b.id||0));
+    store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
     renderProducts();
     if (isAdmin) renderAdminProducts();
   });
