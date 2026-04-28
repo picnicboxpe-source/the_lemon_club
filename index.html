@@ -845,6 +845,29 @@ let store = {
   textBlocks: []
 };
 
+// ─── Apply cached settings instantly to avoid flash ───
+try {
+  const cached = localStorage.getItem('tlc_settings');
+  if (cached) {
+    const s = JSON.parse(cached);
+    store.settings = { ...store.settings, ...s };
+    const c = s.colors || {};
+    const r = document.documentElement.style;
+    if (c.black) r.setProperty('--black', c.black);
+    if (c.yellow) r.setProperty('--yellow', c.yellow);
+    if (c.green)  r.setProperty('--green', c.green);
+    if (c.white)  r.setProperty('--white', c.white);
+    if (c.gray)   r.setProperty('--gray', c.gray);
+    if (s.font) document.body.style.fontFamily = `'${s.font}', sans-serif`;
+  }
+  const cachedCats = localStorage.getItem('tlc_categories');
+  if (cachedCats) store.categories = JSON.parse(cachedCats);
+  const cachedProds = localStorage.getItem('tlc_products');
+  if (cachedProds) store.products = JSON.parse(cachedProds);
+  const cachedBlocks = localStorage.getItem('tlc_textblocks');
+  if (cachedBlocks) store.textBlocks = JSON.parse(cachedBlocks);
+} catch(e) {}
+
 let editingProductId = null;
 let editingTextBlockId = null;
 let isAdmin = false;
@@ -927,6 +950,7 @@ function bootstrap() {
   onSnapshot(settingsRef, snap => {
     if (snap.exists()) {
       store.settings = { ...store.settings, ...snap.data() };
+      try { localStorage.setItem('tlc_settings', JSON.stringify(store.settings)); } catch(e) {}
       // Update loading screen colors live if still showing
       const li = document.getElementById('loading-inner');
       if (li) {
@@ -944,6 +968,7 @@ function bootstrap() {
   });
   onSnapshot(categoriesRef, snap => {
     store.categories = snap.exists() ? (snap.data().list || ['Todos']) : ['Todos'];
+    try { localStorage.setItem('tlc_categories', JSON.stringify(store.categories)); } catch(e) {}
     if (!store.categories.includes('Todos')) store.categories.unshift('Todos');
     renderCategoryTabs();
     if (isAdmin) renderAdminCategories();
@@ -951,6 +976,7 @@ function bootstrap() {
   onSnapshot(productsCol, snap => {
     store.products = snap.docs.map(d => d.data());
     store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
+    try { localStorage.setItem('tlc_products', JSON.stringify(store.products)); } catch(e) {}
     renderProducts();
     if (isAdmin) renderAdminProducts();
   });
@@ -958,6 +984,7 @@ function bootstrap() {
   onSnapshot(textBlocksCol, snap => {
     store.textBlocks = snap.docs.map(d => d.data());
     store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
+    try { localStorage.setItem('tlc_textblocks', JSON.stringify(store.textBlocks)); } catch(e) {}
     renderTextBlocks();
     if (isAdmin) renderAdminTextBlocks();
     if (!textLoaded) { textLoaded = true; renderHome(); hideLoading(); }
