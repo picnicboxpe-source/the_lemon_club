@@ -99,8 +99,6 @@
   .tag-oferta { background: var(--red-tag); color: var(--white); }
   .tag-low { background: #FF8C00; color: #fff; }
   .tag-unique { background: #D0021B; color: #fff; animation: pulse-unique 1.8s ease-in-out infinite; }
-  .promo-price { display:inline-block; background:#D0021B; color:#fff; font-size:.72rem; font-weight:900; letter-spacing:1px; padding:.25rem .6rem; border-radius:2px; margin-left:.5rem; vertical-align:middle; }
-  .detail-promo { display:inline-block; background:#D0021B; color:#fff; font-size:.85rem; font-weight:900; letter-spacing:1px; padding:.35rem .9rem; border-radius:2px; margin-left:.6rem; vertical-align:middle; }
   @keyframes pulse-unique { 0%,100%{opacity:1} 50%{opacity:.72} }
   .product-info { padding: 1.1rem 1.25rem 1.4rem; }
   .product-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .3rem; }
@@ -493,17 +491,7 @@
         </div>
         <div class="form-group">
           <label>Precio ($)</label>
-          <input type="number" id="pf-price" placeholder="0.00" step="0.01">
-        </div>
-        <div class="form-group">
-          <label>Precio promo <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(ej: 2 x $5 — opcional)</span></label>
-          <div style="display:flex;gap:.5rem;align-items:center;">
-            <input type="number" id="pf-promo-qty" placeholder="2" min="1" step="1" style="width:70px;">
-            <span style="color:#888;font-weight:700;">×</span>
-            <input type="number" id="pf-promo-price" placeholder="5.00" step="0.01" style="flex:1;">
-          </div>
-          <span style="font-size:.72rem;color:#bbb;margin-top:.3rem;display:block;">Dejar vacío para no mostrar precio promo</span>
-        </div>
+          <input type="text" id="pf-price" placeholder="ej: 5.00 / 2 x 5 / Consultar">
         <div class="form-group">
           <label>Categoría</label>
           <select id="pf-category"></select>
@@ -1017,21 +1005,7 @@ function showDetail(id) {
   const _dqn = document.getElementById('detail-qty-num'); if(_dqn) _dqn.textContent = '1';
   const _dadd = document.getElementById('detail-add-cart-btn'); if(_dadd){ _dadd.textContent='+ Agregar al carrito'; _dadd.classList.remove('added'); }
   document.getElementById('detail-name').textContent = p.name;
-  document.getElementById('detail-price').textContent = parseFloat(p.price).toFixed(2);
-  // Promo price badge
-  let promoBadge = document.getElementById('detail-promo-badge');
-  if (!promoBadge) {
-    promoBadge = document.createElement('span');
-    promoBadge.id = 'detail-promo-badge';
-    promoBadge.className = 'detail-promo';
-    document.querySelector('.detail-price').appendChild(promoBadge);
-  }
-  if (p.promoQty && p.promoPrice) {
-    promoBadge.textContent = `${p.promoQty} × $${parseFloat(p.promoPrice).toFixed(2)}`;
-    promoBadge.style.display = 'inline-block';
-  } else {
-    promoBadge.style.display = 'none';
-  }
+  document.getElementById('detail-price').textContent = p.priceText||parseFloat(p.price).toFixed(2);
   document.getElementById('detail-desc').textContent = p.desc;
   const tagEl = document.getElementById('detail-tag');
   // Show product tag OR stock warning (low stock), not both
@@ -1232,8 +1206,7 @@ function renderProducts() {
     const waBtn=p.soldOut
       ? `<a class="wa-btn-mini disabled">AGOTADO</a>`
       : `<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')" >💬 Consultar</a><button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">+ Agregar al carrito</button>`;
-    const promoHtml = (p.promoQty && p.promoPrice) ? `<span class="promo-price">${p.promoQty} × $${parseFloat(p.promoPrice).toFixed(2)}</span>` : '';
-    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${parseFloat(p.price).toFixed(2)} <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span>${promoHtml}</div>${waBtn}</div></div>`;
+    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price"><span class="currency">$</span>${p.priceText||parseFloat(p.price).toFixed(2)} <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span></div>${waBtn}</div></div>`;
   }).join('');
 }
 function renderTextBlocks() {
@@ -1296,7 +1269,7 @@ function renderAdminProducts() {
       <img src="${p.imgs&&p.imgs[0]?p.imgs[0]:''}" alt="${p.name}" onerror="this.style.background='#eee'">
       <div class="api-info">
         <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;font-weight:900;">AGOTADO</span>':p.stock==='unique'?' <span style="color:#D0021B;font-size:.7rem;font-weight:900;">PIEZA ÚNICA</span>':p.stock==='collection'?' <span style="color:#6B2D8B;font-size:.7rem;font-weight:900;">ÚNICA COLECCIÓN</span>':p.stock==='low'?' <span style="color:#FF8C00;font-size:.7rem;font-weight:900;">POCAS</span>':''}</strong>
-        <span>$ ${parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
+        <span>$ ${p.priceText||parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
       </div>
       <div class="api-actions">
         <button class="edit-btn" onclick="openProductModal(${p.id})">Editar</button>
@@ -1355,9 +1328,7 @@ function openProductModal(id) {
   if(id){
     const p=store.products.find(x=>x.id==id);
     document.getElementById('pf-name').value=p.name;
-    document.getElementById('pf-price').value=p.price;
-    document.getElementById('pf-promo-qty').value=(p.promoQty)||'';
-    document.getElementById('pf-promo-price').value=(p.promoPrice)||'';
+    document.getElementById('pf-price').value=p.priceText||p.price||'';
     document.getElementById('pf-tag').value=p.tag||'';
     document.getElementById('pf-category').value=p.category||'';
     document.getElementById('pf-stock').value = p.soldOut ? 'soldout' : (p.stock || 'available');
@@ -1367,7 +1338,7 @@ function openProductModal(id) {
     document.getElementById('pf-img3').value=(p.imgs&&p.imgs[2])||'';
     [1,2,3].forEach(n=>restoreProductImgPreview(n,p.imgs&&p.imgs[n-1]));
   } else {
-    ['pf-name','pf-price','pf-promo-qty','pf-promo-price','pf-desc','pf-img1','pf-img2','pf-img3'].forEach(fid=>document.getElementById(fid).value='');
+    ['pf-name','pf-price','pf-desc','pf-img1','pf-img2','pf-img3'].forEach(fid=>document.getElementById(fid).value='');
     document.getElementById('pf-tag').value=''; document.getElementById('pf-category').value='';
     document.getElementById('pf-stock').value='available';
     [1,2,3].forEach(n=>clearProductImg(n));
@@ -1376,16 +1347,15 @@ function openProductModal(id) {
 }
 function closeProductModal() { document.getElementById('product-modal').classList.remove('open'); }
 async function saveProduct() {
-  const name=document.getElementById('pf-name').value.trim(), price=parseFloat(document.getElementById('pf-price').value);
-  if(!name||isNaN(price)){alert('Completa nombre y precio');return;}
+  const name=document.getElementById('pf-name').value.trim(), priceText=document.getElementById('pf-price').value.trim();
+  const price=parseFloat(priceText)||0;
+  if(!name||!priceText){alert('Completa nombre y precio');return;}
   const imgs=[document.getElementById('pf-img1').value.trim(),document.getElementById('pf-img2').value.trim(),document.getElementById('pf-img3').value.trim()].filter(Boolean);
   const prod={
-    name, price, tag:document.getElementById('pf-tag').value,
+    name, price, priceText:priceText, tag:document.getElementById('pf-tag').value,
     category:document.getElementById('pf-category').value,
     soldOut: document.getElementById('pf-stock').value === 'soldout',
     stock: document.getElementById('pf-stock').value,
-    promoQty: parseInt(document.getElementById('pf-promo-qty').value)||null,
-    promoPrice: parseFloat(document.getElementById('pf-promo-price').value)||null,
     desc:document.getElementById('pf-desc').value.trim(), imgs,
     id: editingProductId || Date.now()
   };
