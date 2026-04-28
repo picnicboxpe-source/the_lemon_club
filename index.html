@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;">
 <title>The Lemon Club — Catálogo</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
 <style>
@@ -491,8 +490,9 @@
           <input type="text" id="pf-name" placeholder="Ej: Bolso Verde Croco">
         </div>
         <div class="form-group">
-          <label>Precio ($)</label>
-          <input type="text" id="pf-price" placeholder="ej: 5.00 / 2 x 5 / Consultar">
+          <label>Precio <span style="font-weight:400;letter-spacing:0;text-transform:none;color:#bbb;">(ej: 5.00 / 2 x 5 / Desde 8)</span></label>
+          <input type="text" id="pf-price" placeholder="ej: 5.00">
+        </div>
         <div class="form-group">
           <label>Categoría</label>
           <select id="pf-category"></select>
@@ -805,20 +805,12 @@
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script>
+<script type="module">
 // ═══════════════════════════════════════════════
 // FIREBASE SETUP
 // ═══════════════════════════════════════════════
-
-// Prevent Firebase errors from causing blank page
-window.addEventListener('unhandledrejection', e => {
-  console.warn('Unhandled promise rejection:', e.reason);
-  e.preventDefault();
-  // Still show the page if loading
-  if (typeof hideLoading === 'function') hideLoading();
-});
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyC91I0sFzvWYx47YfU0bC5S3rgrZ4Ypa3Y",
@@ -828,14 +820,14 @@ const firebaseConfig = {
   messagingSenderId: "832867282040",
   appId: "1:832867282040:web:bedd54ec8f8f39a2c0518d"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // ─── Refs ───
-const settingsRef = db.collection('store').doc('settings');
-const categoriesRef = db.collection('store').doc('categories');
-const productsCol = db.collection('products');
-const textBlocksCol = db.collection('textBlocks');
+const settingsRef = doc(db, 'store', 'settings');
+const categoriesRef = doc(db, 'store', 'categories');
+const productsCol = collection(db, 'products');
+const textBlocksCol = collection(db, 'textBlocks');
 
 // ─── In-memory store ───
 let store = {
@@ -912,12 +904,12 @@ function hideLoading() {
 setTimeout(hideLoading, 4000);
 
 // ─── Firebase write helpers ───
-async function saveSettingsToFB(data) { await settingsRef.set(data); }
-async function saveCategoriesToFB(cats) { await categoriesRef.set({ list: cats }); }
-async function saveProductToFB(prod) { await db.collection('products').doc(String(prod.id)).set(prod); }
-async function deleteProductFromFB(id) { await db.collection('products').doc(String(id)).delete(); }
-async function saveTextBlockToFB(tb) { await db.collection('textBlocks').doc(String(tb.id)).set(tb); }
-async function deleteTextBlockFromFB(id) { await db.collection('textBlocks').doc(String(id)).delete(); }
+async function saveSettingsToFB(data) { await setDoc(settingsRef, data); }
+async function saveCategoriesToFB(cats) { await setDoc(categoriesRef, { list: cats }); }
+async function saveProductToFB(prod) { await setDoc(doc(db, 'products', String(prod.id)), prod); }
+async function deleteProductFromFB(id) { await deleteDoc(doc(db, 'products', String(id))); }
+async function saveTextBlockToFB(tb) { await setDoc(doc(db, 'textBlocks', String(tb.id)), tb); }
+async function deleteTextBlockFromFB(id) { await deleteDoc(doc(db, 'textBlocks', String(id))); }
 
 // Darken/lighten a hex color by amount (-255 to 255)
 function adjustShade(hex, amount) {
@@ -932,63 +924,44 @@ function adjustShade(hex, amount) {
 
 // ─── Bootstrap: real-time listeners ───
 function bootstrap() {
-  try {
-    settingsRef.onSnapshot(snap => {
-      try {
-        if (snap.exists()) {
-          const data = snap.data();
-          // Update loading screen colors live if still showing
-          const li = document.getElementById('loading-inner');
-          if (li) {
-            const c = (data.colors)||{};
-            const bg = c.green ? adjustShade(c.green, -60) : '#555D1D';
-            const txt = c.green ? adjustShade(c.green, 80) : '#e8eda0';
-            const sub = c.green ? adjustShade(c.green, 30) : '#b8c45a';
-            li.style.background = bg;
-            li.querySelectorAll('[data-ltxt]').forEach(d => d.style.color = txt);
-            li.querySelectorAll('[data-lsub]').forEach(d => d.style.color = sub);
-          }
-          store.settings = { ...store.settings, ...data };
-        }
-        if (loaded) renderHome();
-      } catch(e) { console.warn('settings snap error', e); }
-    }, err => { console.warn('settings listener error:', err); hideLoading(); });
-  } catch(e) { console.warn('settings subscribe error', e); }
-
-  try {
-    categoriesRef.onSnapshot(snap => {
-      try {
-        store.categories = snap.exists() ? (snap.data().list || ['Todos']) : ['Todos'];
-        if (!store.categories.includes('Todos')) store.categories.unshift('Todos');
-        renderCategoryTabs();
-        if (isAdmin) renderAdminCategories();
-      } catch(e) { console.warn('categories snap error', e); }
-    }, err => console.warn('categories listener error:', err));
-  } catch(e) { console.warn('categories subscribe error', e); }
-
-  try {
-    productsCol.onSnapshot(snap => {
-      try {
-        store.products = snap.docs.map(d => d.data());
-        store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
-        renderProducts();
-        if (isAdmin) renderAdminProducts();
-      } catch(e) { console.warn('products snap error', e); }
-    }, err => console.warn('products listener error:', err));
-  } catch(e) { console.warn('products subscribe error', e); }
-
+  onSnapshot(settingsRef, snap => {
+    if (snap.exists()) {
+      store.settings = { ...store.settings, ...snap.data() };
+      // Update loading screen colors live if still showing
+      const li = document.getElementById('loading-inner');
+      if (li) {
+        const c = store.settings.colors || {};
+        const bg = c.green ? adjustShade(c.green, -60) : '#555D1D';
+        const txt = c.green ? adjustShade(c.green, 80) : '#e8eda0';
+        const sub = c.green ? adjustShade(c.green, 30) : '#b8c45a';
+        li.style.background = bg;
+        li.querySelectorAll('[data-ldot]').forEach(d => d.style.background = dot);
+        li.querySelector('[data-ltxt]') && (li.querySelector('[data-ltxt]').style.color = txt);
+        li.querySelector('[data-lsub]') && (li.querySelector('[data-lsub]').style.color = sub);
+      }
+    }
+    if (loaded) renderHome();
+  });
+  onSnapshot(categoriesRef, snap => {
+    store.categories = snap.exists() ? (snap.data().list || ['Todos']) : ['Todos'];
+    if (!store.categories.includes('Todos')) store.categories.unshift('Todos');
+    renderCategoryTabs();
+    if (isAdmin) renderAdminCategories();
+  });
+  onSnapshot(productsCol, snap => {
+    store.products = snap.docs.map(d => d.data());
+    store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
+    renderProducts();
+    if (isAdmin) renderAdminProducts();
+  });
   let textLoaded = false;
-  try {
-    textBlocksCol.onSnapshot(snap => {
-      try {
-        store.textBlocks = snap.docs.map(d => d.data());
-        store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
-        renderTextBlocks();
-        if (isAdmin) renderAdminTextBlocks();
-        if (!textLoaded) { textLoaded = true; renderHome(); hideLoading(); }
-      } catch(e) { console.warn('textblocks snap error', e); if (!textLoaded) { textLoaded = true; hideLoading(); } }
-    }, err => { console.warn('textblocks listener error:', err); if (!textLoaded) { textLoaded = true; hideLoading(); } });
-  } catch(e) { console.warn('textblocks subscribe error', e); hideLoading(); }
+  onSnapshot(textBlocksCol, snap => {
+    store.textBlocks = snap.docs.map(d => d.data());
+    store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
+    renderTextBlocks();
+    if (isAdmin) renderAdminTextBlocks();
+    if (!textLoaded) { textLoaded = true; renderHome(); hideLoading(); }
+  });
 }
 bootstrap();
 
