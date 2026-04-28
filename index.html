@@ -909,6 +909,17 @@ try {
   if (cachedBlocks) store.textBlocks = JSON.parse(cachedBlocks);
 } catch(e) {}
 
+// ─── Pre-render from cache during the loading animation ───
+// Products are ready by the time the animation finishes
+requestAnimationFrame(() => {
+  try {
+    renderCategoryTabs();
+    renderProducts();
+    renderTextBlocks();
+    renderHome();
+  } catch(e) {}
+});
+
 let editingProductId = null;
 let editingTextBlockId = null;
 let isAdmin = false;
@@ -983,21 +994,21 @@ function bootstrap() {
     renderCategoryTabs();
     if (isAdmin) renderAdminCategories();
   });
+  let prodsLoaded = false;
   onSnapshot(productsCol, snap => {
     store.products = snap.docs.map(d => d.data());
     store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
     try { localStorage.setItem('tlc_products', JSON.stringify(store.products)); } catch(e) {}
     renderProducts();
     if (isAdmin) renderAdminProducts();
+    if (!prodsLoaded) { prodsLoaded = true; renderHome(); hideLoading(); }
   });
-  let textLoaded = false;
   onSnapshot(textBlocksCol, snap => {
     store.textBlocks = snap.docs.map(d => d.data());
     store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
     try { localStorage.setItem('tlc_textblocks', JSON.stringify(store.textBlocks)); } catch(e) {}
     renderTextBlocks();
     if (isAdmin) renderAdminTextBlocks();
-    if (!textLoaded) { textLoaded = true; renderHome(); hideLoading(); }
   });
 }
 bootstrap();
