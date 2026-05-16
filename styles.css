@@ -17,7 +17,7 @@
     color: #2a3a00; text-align: center; padding: 0 1rem;
   }
   .l-sub {
-    color: #4a5a00; font-size: .78rem; letter-spacing: 4px;
+    color: #1a2400; font-size: .78rem; letter-spacing: 4px;
     text-transform: uppercase; text-align: center;
   }
   .l-dots { display: flex; gap: 10px; align-items: flex-end; background: transparent; }
