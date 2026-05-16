@@ -116,6 +116,7 @@ loadingDiv.innerHTML = `<div id="loading-inner" style="display:flex;align-items:
 <style>@keyframes mascot-bounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.04)}}</style>`;
 document.body.prepend(loadingDiv);
 let loaded = false;
+let preloading = false;
 function hideLoading() {
   if (loaded) return; loaded = true;
   const el = document.getElementById('loading-screen');
@@ -123,9 +124,26 @@ function hideLoading() {
   document.getElementById('main-nav').style.display = 'flex';
   if (!isAdmin) { document.getElementById('home-page').style.display = 'block'; }
 }
-// Con caché: ocultar pantalla rápido (los productos ya están renderizados)
-// Sin caché: esperar hasta que Firebase responda (máx 3.5s)
-setTimeout(hideLoading, store.products.length ? 800 : 3500);
+// Precargar primeras imágenes antes de revelar la página
+function hideLoadingWhenReady() {
+  if (loaded || preloading) return;
+  preloading = true;
+  const urls = store.products.slice(0, 6)
+    .map(p => p.imgs && p.imgs[0])
+    .filter(u => u && u.startsWith('http'));
+  if (!urls.length) { hideLoading(); return; }
+  let n = 0;
+  const onDone = () => { if (++n >= urls.length) hideLoading(); };
+  urls.forEach(u => { const img = new Image(); img.onload = img.onerror = onDone; img.src = u; });
+  setTimeout(hideLoading, 8000); // fallback absoluto
+}
+// Con caché: precargar imágenes inmediatamente
+// Sin caché: el onSnapshot de productos dispara hideLoadingWhenReady cuando lleguen
+if (store.products.length) {
+  hideLoadingWhenReady();
+} else {
+  setTimeout(hideLoading, 5000); // fallback si Firebase no responde
+}
 
 // ─── Firebase write helpers ───
 async function saveSettingsToFB(data) { await setDoc(settingsRef, data); }
@@ -181,7 +199,7 @@ function bootstrap() {
     try { localStorage.setItem('tlc_products', JSON.stringify(store.products)); } catch(e) {}
     renderProducts();
     if (isAdmin) renderAdminProducts();
-    if (!prodsLoaded) { prodsLoaded = true; renderHome(); hideLoading(); }
+    if (!prodsLoaded) { prodsLoaded = true; renderHome(); hideLoadingWhenReady(); }
   });
   onSnapshot(textBlocksCol, snap => {
     store.textBlocks = snap.docs.map(d => d.data());
@@ -332,19 +350,40 @@ function buildMarquees() {
 // ═══════════════════════════════════════════════
 // IMAGE UPLOAD
 // ═══════════════════════════════════════════════
-function compressImage(file, maxW, maxH, quality, callback) {
+// crop=false: contain (escala sin recortar) | crop=true: cover + center crop al tamaño exacto
+function compressImage(file, maxW, maxH, quality, callback, crop = false) {
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      let w = img.width, h = img.height;
-      if (w > maxW || h > maxH) {
-        const ratio = Math.min(maxW/w, maxH/h);
-        w = Math.round(w*ratio); h = Math.round(h*ratio);
-      }
+      const sw = img.width, sh = img.height;
       const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const ctx = canvas.getContext('2d');
+      if (crop) {
+        if (sw <= maxW && sh <= maxH) {
+          // Ya está en el tamaño correcto, no escalar ni recortar
+          canvas.width = sw; canvas.height = sh;
+          ctx.drawImage(img, 0, 0, sw, sh);
+        } else {
+          // Cover + center crop: escalar para cubrir exactamente maxW×maxH
+          const scale = Math.max(maxW / sw, maxH / sh);
+          const srcW = Math.round(maxW / scale);
+          const srcH = Math.round(maxH / scale);
+          const srcX = Math.round((sw - srcW) / 2);
+          const srcY = Math.round((sh - srcH) / 2);
+          canvas.width = maxW; canvas.height = maxH;
+          ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, maxW, maxH);
+        }
+      } else {
+        // Contain: escalar para que quepa dentro del área
+        let w = sw, h = sh;
+        if (w > maxW || h > maxH) {
+          const ratio = Math.min(maxW / w, maxH / h);
+          w = Math.round(w * ratio); h = Math.round(h * ratio);
+        }
+        canvas.width = w; canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+      }
       callback(canvas.toDataURL('image/jpeg', quality));
     };
     img.src = e.target.result;
@@ -751,7 +790,7 @@ function handleProductImg(input, n) {
   const file=input.files[0]; if(!file) return;
   const prev=document.getElementById('prev-pf-img'+n);
   prev.style.display='block'; prev.style.opacity='.4';
-  compressImage(file, 800, 1067, 0.82, async b64 => {
+  compressImage(file, 600, 800, 0.85, async b64 => {
     try {
       const url = await uploadToStorage(b64, `products/img_${Date.now()}_${n}.jpg`);
       document.getElementById('pf-img'+n).value=url;
@@ -762,7 +801,7 @@ function handleProductImg(input, n) {
     }
     prev.style.display='block'; prev.style.opacity='1';
     document.getElementById('del-pf-img'+n).style.display='inline-block';
-  });
+  }, true);
 }
 function clearProductImg(n) {
   document.getElementById('pf-img'+n).value='';
