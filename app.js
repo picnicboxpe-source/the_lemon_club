@@ -221,7 +221,18 @@ function bootstrap() {
     } catch(e) {}
     renderProducts();
     if (isAdmin) renderAdminProducts();
-    if (!prodsLoaded) { prodsLoaded = true; renderHome(); hideLoading(); }
+    if (!prodsLoaded) {
+      prodsLoaded = true;
+      renderHome();
+      const grid = document.getElementById('products-grid');
+      const imgs = grid ? Array.from(grid.querySelectorAll('img')) : [];
+      const pending = imgs.filter(i => !i.complete);
+      if (!pending.length) { hideLoading(); return; }
+      let remaining = pending.length;
+      const tid = setTimeout(hideLoading, 5000);
+      const done = () => { if (!--remaining) { clearTimeout(tid); hideLoading(); } };
+      pending.forEach(img => { img.onload = img.onerror = done; });
+    }
   });
   onSnapshot(textBlocksCol, snap => {
     store.textBlocks = snap.docs.map(d => d.data());
@@ -593,7 +604,7 @@ function renderProducts() {
   if(filtered.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;font-size:.95rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Sin productos en esta categoría</div>';return;}
 
   function buildCard(p) {
-    const img=p.imgs&&p.imgs[0]?`<img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">`:`<div class="img-placeholder">📷</div>`;
+    const img=p.imgs&&p.imgs[0]?`<img src="${p.imgs[0]}" alt="${p.name}">`:`<div class="img-placeholder">📷</div>`;
     const tag=p.tag?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
     const stockTag = p.stock==='low'
       ? `<span class="product-tag tag-low" style="position:absolute;bottom:10px;left:10px;top:auto;">Pocas unidades</span>`
