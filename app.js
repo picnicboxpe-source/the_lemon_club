@@ -108,9 +108,16 @@ let loaded = false;
 function hideLoading() {
   if (loaded) return; loaded = true;
   const el = document.getElementById('loading-screen');
-  if (el) { el.style.opacity = '0'; setTimeout(() => { if (el.parentNode) el.remove(); }, 350); }
-  document.getElementById('main-nav').style.display = 'flex';
-  if (!isAdmin) { document.getElementById('home-page').style.display = 'block'; }
+  function revealApp() {
+    document.getElementById('main-nav').style.display = 'flex';
+    if (!isAdmin) { document.getElementById('home-page').style.display = 'block'; }
+  }
+  if (el) {
+    el.style.opacity = '0';
+    setTimeout(() => { if (el.parentNode) el.remove(); revealApp(); }, 400);
+  } else {
+    revealApp();
+  }
 }
 // Con caché: revelar en 500ms (productos ya renderizados, imágenes cargan en fondo)
 // Sin caché: onSnapshot dispara hideLoading cuando llegan datos de Firebase
