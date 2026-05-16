@@ -30,10 +30,10 @@ const textBlocksCol = collection(db, 'textBlocks');
 let store = {
   settings: {
     font: 'Barlow', brand: 'The Lemon Club', navBrand: '', logo: '', brandImg: '',
-    heroSub: 'Bolsos y accesorios con personalidad. Únicos, modernos y para ti.',
+    heroSub: 'Accesorios con personalidad. Únicos, modernos y para ti.',
     wa: '51987654321',
-    band: 'HECHO CON AMOR — ENVÍOS A TODO EL PAÍS — ESCRÍBENOS POR WHATSAPP',
-    footer: 'Bolsos y accesorios únicos • Contáctanos por WhatsApp',
+    band: 'HECHO CON AMOR — ACCESORIOS ÚNICOS — ESCRÍBENOS POR WHATSAPP',
+    footer: 'Accesorios únicos en Caracas • Contáctanos por WhatsApp',
     password: 'admin123',
     colors: { black:'#0A0A0A', yellow:'#F5E642', green:'#1DB954', white:'#FAFAFA', hero:'#F5E642', band:'#0A0A0A', bandText:'#F5E642', gray:'#E8E8E8' }
   },
@@ -232,7 +232,7 @@ function showDetail(id) {
   window.scrollTo(0,0);
   updateSEO({
     title: p.name,
-    desc: p.desc ? `${p.desc} — ${store.settings.brand || 'The Lemon Club'}` : `${p.name} en ${store.settings.brand || 'The Lemon Club'}. Envíos a todo el país.`,
+    desc: p.desc ? `${p.desc} — ${store.settings.brand || 'The Lemon Club'}` : `${p.name} en ${store.settings.brand || 'The Lemon Club'}. Accesorios únicos en Caracas.`,
     image: p.imgs && p.imgs[0],
     url: `#producto-${p.id}`,
     type: 'product',
@@ -245,7 +245,7 @@ function showDetail(id) {
       brand: { '@type': 'Brand', name: store.settings.brand || 'The Lemon Club' },
       offers: {
         '@type': 'Offer',
-        priceCurrency: 'PEN',
+        priceCurrency: 'USD',
         price: parseFloat(p.price || 0).toFixed(2),
         availability: p.soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
         seller: { '@type': 'Organization', name: store.settings.brand || 'The Lemon Club' }
@@ -443,7 +443,7 @@ function applyColors() {
 function updateSEO({ title, desc, image, url, type = 'website', ldProduct = null } = {}) {
   const brand    = store.settings.brand || 'The Lemon Club';
   const fullTitle = title ? `${title} — ${brand}` : `${brand} — Catálogo`;
-  const finalDesc = desc  || 'Bolsos y accesorios únicos hechos con amor. Envíos a todo el país. Escríbenos por WhatsApp.';
+  const finalDesc = desc  || 'Accesorios únicos en Caracas, Venezuela. Collares, ganchos, correas y más, hechos con amor. Escríbenos por WhatsApp.';
   const finalUrl  = `${SITE_URL}/${url || ''}`;
   const finalImg  = image && image.startsWith('http') ? image : `${SITE_URL}/icon-512.png`;
 
