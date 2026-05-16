@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.thelemonclub.com/sitemap.xml
+Sitemap: https://picnicboxpe-source.github.io/the_lemon_club/sitemap.xml

@@ -1,5 +1,5 @@
 ﻿// URL del sitio — reemplazar con el dominio real cuando esté publicado
-const SITE_URL = 'https://www.thelemonclub.com';
+const SITE_URL = 'https://picnicboxpe-source.github.io/the_lemon_club';
 
 // ═══════════════════════════════════════════════
 // FIREBASE SETUP
