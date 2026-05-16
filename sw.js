@@ -1,5 +1,5 @@
-const CACHE = 'tlc-v3';
-const STATIC = ['./index.html', './styles.css', './app.js', './icon-192.png', './icon-512.png', './manifest.json'];
+const CACHE = 'tlc-v4';
+const STATIC = ['./index.html', './styles.css', './app.js', './mascot.jpg', './icon-192.png', './icon-512.png', './manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));

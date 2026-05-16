@@ -8,9 +8,13 @@
   #loading-inner {
     display: flex; flex-direction: column; align-items: center; gap: 1.4rem;
   }
-  #loading-inner img {
-    border-radius: 50%; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  .l-mascot {
+    width: 80px; height: 80px; border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+    animation: mascot-bounce 1.2s ease-in-out infinite;
+    margin-bottom: -.5rem;
   }
+  @keyframes mascot-bounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.04); } }
   #loading-inner [data-ltxt] {
     font-family: 'Bebas Neue', 'Impact', sans-serif;
     font-size: 2.3rem; letter-spacing: 8px;
