@@ -47,19 +47,20 @@
     background: var(--black);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 2rem; height: 64px; position: sticky; top: 0; z-index: 100;
-    overflow: hidden;
   }
   .nav-logo-img { height: 40px; max-width: 160px; object-fit: contain; display: block; }
   .nav-mascot-img { height: 40px; width: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-right: .5rem; }
   .nav-brand { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--yellow); letter-spacing: 4px; cursor: pointer; display: flex; align-items: center; }
-  .nav-links { display: flex; gap: 2rem; }
+  .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--black); flex-direction: column; padding: 1rem 2rem; gap: 1rem; z-index: 99; }
+  .nav-links.open { display: flex; }
   .nav-links a { color: var(--white); text-decoration: none; font-weight: 600; font-size: .95rem; letter-spacing: 1px; text-transform: uppercase; transition: color .2s; cursor: pointer; }
   .nav-links a:hover { color: var(--yellow); }
   #install-btn { color: var(--yellow) !important; }
   .admin-btn { background: var(--yellow); color: var(--black); border: none; padding: .45rem 1.2rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .85rem; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity .2s; }
   .admin-btn:hover { opacity: .85; }
-  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+  .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
   .hamburger span { width: 24px; height: 2px; background: var(--white); transition: .3s; }
+  .search-btn-label { display: none; }
 
   /* ─── MARQUEE HERO ─── */
   .hero {
@@ -344,14 +345,6 @@
     .band { padding: 2.5rem 1.5rem; }
     .admin-container { padding: 1.5rem; }
     footer { padding: 2.5rem 1.5rem; }
-  }
-
-  /* ─── RESPONSIVE: NAV hamburger (tablets y móviles) ─── */
-  @media (max-width: 1024px) {
-    .hamburger { display: flex; }
-    .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--black); flex-direction: column; padding: 1rem 2rem; gap: 1rem; z-index: 99; }
-    .nav-links.open { display: flex; }
-    .search-btn-label { display: none; }
   }
 
   /* ─── RESPONSIVE: layout móvil ─── */
