@@ -1,4 +1,7 @@
-﻿// ═══════════════════════════════════════════════
+﻿// URL del sitio — reemplazar con el dominio real cuando esté publicado
+const SITE_URL = 'https://www.thelemonclub.com';
+
+// ═══════════════════════════════════════════════
 // FIREBASE SETUP
 // ═══════════════════════════════════════════════
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -227,6 +230,28 @@ function showDetail(id) {
   document.getElementById('detail-page').style.display = 'block';
   document.getElementById('admin-panel').style.display = 'none';
   window.scrollTo(0,0);
+  updateSEO({
+    title: p.name,
+    desc: p.desc ? `${p.desc} — ${store.settings.brand || 'The Lemon Club'}` : `${p.name} en ${store.settings.brand || 'The Lemon Club'}. Envíos a todo el país.`,
+    image: p.imgs && p.imgs[0],
+    url: `#producto-${p.id}`,
+    type: 'product',
+    ldProduct: {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: p.name,
+      description: p.desc || p.name,
+      image: p.imgs || [],
+      brand: { '@type': 'Brand', name: store.settings.brand || 'The Lemon Club' },
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'PEN',
+        price: parseFloat(p.price || 0).toFixed(2),
+        availability: p.soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+        seller: { '@type': 'Organization', name: store.settings.brand || 'The Lemon Club' }
+      }
+    }
+  });
   currentDetailId = p.id; detailQty = 1;
   const _dqn = document.getElementById('detail-qty-num'); if(_dqn) _dqn.textContent = '1';
   const _dadd = document.getElementById('detail-add-cart-btn'); if(_dadd){ _dadd.textContent='+ Agregar al carrito'; _dadd.classList.remove('added'); }
@@ -413,11 +438,50 @@ function applyColors() {
 }
 
 // ═══════════════════════════════════════════════
+// SEO
+// ═══════════════════════════════════════════════
+function updateSEO({ title, desc, image, url, type = 'website', ldProduct = null } = {}) {
+  const brand    = store.settings.brand || 'The Lemon Club';
+  const fullTitle = title ? `${title} — ${brand}` : `${brand} — Catálogo`;
+  const finalDesc = desc  || 'Bolsos y accesorios únicos hechos con amor. Envíos a todo el país. Escríbenos por WhatsApp.';
+  const finalUrl  = `${SITE_URL}/${url || ''}`;
+  const finalImg  = image && image.startsWith('http') ? image : `${SITE_URL}/icon-512.png`;
+
+  document.title = fullTitle;
+
+  const set = (id, attr, val) => { const el = document.getElementById(id); if (el) el.setAttribute(attr, val); };
+  set('meta-desc', 'content', finalDesc);
+  set('canonical',  'href',   finalUrl);
+  set('og-type',   'content', type);
+  set('og-title',  'content', fullTitle);
+  set('og-desc',   'content', finalDesc);
+  set('og-url',    'content', finalUrl);
+  set('og-image',  'content', finalImg);
+  set('tw-title',  'content', fullTitle);
+  set('tw-desc',   'content', finalDesc);
+  set('tw-image',  'content', finalImg);
+
+  let ldScript = document.getElementById('ld-product');
+  if (ldProduct) {
+    if (!ldScript) {
+      ldScript = document.createElement('script');
+      ldScript.id = 'ld-product';
+      ldScript.type = 'application/ld+json';
+      document.head.appendChild(ldScript);
+    }
+    ldScript.textContent = JSON.stringify(ldProduct, null, 2);
+  } else if (ldScript) {
+    ldScript.remove();
+  }
+}
+
+// ═══════════════════════════════════════════════
 // RENDER HOME
 // ═══════════════════════════════════════════════
 function renderHome() {
   const s = store.settings;
   document.title = s.brand+' — Catálogo';
+  updateSEO({});
   applyColors(); applyFont();
   if(navTxt) { navTxt.textContent = (s.navBrand !== undefined ? s.navBrand : ''); navTxt.style.visibility = 'visible'; }
   const heroWrap=document.getElementById('hero-img-wrap'),heroTxt=document.getElementById('brand-hero'),heroImg=document.getElementById('hero-brand-img');
