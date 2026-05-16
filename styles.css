@@ -7,10 +7,11 @@
   }
   #loading-inner {
     display: flex; flex-direction: column; align-items: center; gap: 1.6rem;
+    background: transparent;
   }
   .l-mascot {
     width: 140px; height: 140px; border-radius: 50%;
-    object-fit: cover;
+    object-fit: cover; background: transparent;
     animation: mascot-bounce 1.3s ease-in-out infinite;
   }
   @keyframes mascot-bounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-12px) scale(1.03); } }
@@ -23,9 +24,9 @@
     color: #4a5a00; font-size: .75rem; letter-spacing: 4px;
     text-transform: uppercase; margin-top: -.8rem;
   }
-  .l-dots { display: flex; gap: 10px; align-items: flex-end; }
+  .l-dots { display: flex; gap: 10px; align-items: flex-end; background: transparent; }
   .l-dots span {
-    font-size: 1.5rem; line-height: 1;
+    font-size: 1.5rem; line-height: 1; background: transparent;
     animation: ldot-float 1.4s ease-in-out infinite;
   }
   .l-dots span:nth-child(2) { animation-delay: .22s; }
