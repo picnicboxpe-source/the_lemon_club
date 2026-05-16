@@ -178,7 +178,12 @@ function bootstrap() {
   onSnapshot(productsCol, snap => {
     store.products = snap.docs.map(d => d.data());
     store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
-    try { localStorage.setItem('tlc_products', JSON.stringify(store.products)); } catch(e) {}
+    try {
+      const cacheable = store.products.map(p => ({
+        ...p, imgs: (p.imgs||[]).map(img => img && img.startsWith('data:') ? '' : img)
+      }));
+      localStorage.setItem('tlc_products', JSON.stringify(cacheable));
+    } catch(e) {}
     renderProducts();
     if (isAdmin) renderAdminProducts();
     if (!prodsLoaded) { prodsLoaded = true; renderHome(); hideLoading(); }
