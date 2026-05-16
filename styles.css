@@ -6,7 +6,7 @@
     transition: opacity .4s ease;
   }
   .l-mascot {
-    width: 140px; height: 140px; border-radius: 50%;
+    width: 200px; height: 200px; border-radius: 50%;
     object-fit: cover; background: transparent;
     animation: mascot-bounce 1.3s ease-in-out infinite;
   }
