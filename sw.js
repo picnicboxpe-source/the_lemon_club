@@ -1,4 +1,4 @@
-const CACHE = 'tlc-v16';
+const CACHE = 'tlc-v17';
 const STATIC = ['./index.html', './styles.css', './app.js', './mascot.jpg', './icon-192.png', './icon-512.png', './manifest.json'];
 
 self.addEventListener('install', e => {
