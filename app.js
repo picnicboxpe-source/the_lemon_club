@@ -391,18 +391,15 @@ function handleImgUpload(input, hiddenId, previewId, delBtnId) {
   const maxW = isHero ? 1920 : 400, maxH = isHero ? 1080 : 200;
   compressImage(file, maxW, maxH, 0.82, async b64 => {
     if (!b64) { prev.style.opacity='1'; return; }
-    // Mostrar preview base64 de inmediato
     prev.src = b64;
     prev.style.display='block'; prev.style.opacity='1';
+    document.getElementById(hiddenId).value = b64;
     if (delBtnId) document.getElementById(delBtnId).style.display='inline-block';
-    // Intentar subir a Storage; si falla, guardar base64
     try {
       const url = await uploadToStorage(b64, `settings/${hiddenId}_${Date.now()}.jpg`);
       document.getElementById(hiddenId).value = url;
       prev.src = url;
-    } catch(e) {
-      document.getElementById(hiddenId).value = b64;
-    }
+    } catch(e) {}
   });
 }
 function clearImg(hiddenId, previewId, fileInputId, delBtnId) {
@@ -779,17 +776,14 @@ function handleProductImg(input, n) {
   prev.style.display='block'; prev.style.opacity='.4';
   compressImage(file, 600, 800, 0.85, async b64 => {
     if (!b64) { prev.style.opacity='1'; return; }
-    // Mostrar preview base64 de inmediato
     prev.src=b64;
     prev.style.display='block'; prev.style.opacity='1';
+    document.getElementById('pf-img'+n).value=b64;
     document.getElementById('del-pf-img'+n).style.display='inline-block';
-    // Intentar subir a Storage; si falla, guardar base64
     try {
       const url = await uploadToStorage(b64, `products/img_${Date.now()}_${n}.jpg`);
       document.getElementById('pf-img'+n).value=url;
-    } catch(e) {
-      document.getElementById('pf-img'+n).value=b64;
-    }
+    } catch(e) {}
   }, true);
 }
 function clearProductImg(n) {
