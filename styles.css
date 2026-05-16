@@ -47,6 +47,7 @@
     background: var(--black);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 2rem; height: 64px; position: sticky; top: 0; z-index: 100;
+    overflow: hidden;
   }
   .nav-logo-img { height: 40px; max-width: 160px; object-fit: contain; display: block; }
   .nav-mascot-img { height: 40px; width: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-right: .5rem; }

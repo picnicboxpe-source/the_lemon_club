@@ -1176,6 +1176,8 @@ if ('serviceWorker' in navigator) {
 
 // ─── PWA INSTALL PROMPT ───
 let _installPrompt = null;
+const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _installPrompt = e;
@@ -1187,11 +1189,21 @@ window.addEventListener('appinstalled', () => {
   const btn = document.getElementById('install-btn');
   if (btn) btn.style.display = 'none';
 });
-function installApp() {
-  if (!_installPrompt) return;
-  _installPrompt.prompt();
-  _installPrompt.userChoice.then(() => { _installPrompt = null; });
+
+// Mostrar botón en iOS (no soporta beforeinstallprompt) si no está en standalone
+if (!_isStandalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
   const btn = document.getElementById('install-btn');
-  if (btn) btn.style.display = 'none';
+  if (btn) btn.style.display = '';
+}
+
+function installApp() {
+  if (_installPrompt) {
+    _installPrompt.prompt();
+    _installPrompt.userChoice.then(() => { _installPrompt = null; });
+    const btn = document.getElementById('install-btn');
+    if (btn) btn.style.display = 'none';
+  } else if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    alert('Para instalar: toca el ícono de compartir (□↑) y luego "Agregar a pantalla de inicio"');
+  }
 }
 window.installApp = installApp;
