@@ -403,6 +403,12 @@
   .search-result-name mark { background:var(--yellow); color:var(--black); border-radius:1px; padding:0 1px; font-style:normal; }
   .search-result-price { font-size:.78rem; color:#888; margin-top:.15rem; font-weight:600; }
   .search-result-tag { font-size:.6rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:.15rem .45rem; border-radius:2px; margin-top:.3rem; display:inline-block; color:#fff; }
+  .search-result-tag-soldout { background:#999 !important; }
+  .search-result-soldout { opacity:.55; background:#f6f6f6; pointer-events:auto; }
+  .search-result-soldout:hover { background:#efefef; }
+  .search-result-soldout .search-result-img,
+  .search-result-soldout .search-result-img-ph { filter:grayscale(70%); }
+  .search-result-soldout .search-result-name { color:#888; }
   .search-no-results { padding:1.75rem 1rem; text-align:center; color:#bbb; font-size:.82rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
   @media(max-width:768px) {
     .search-bar { padding:.65rem .75rem; }

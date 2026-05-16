@@ -123,7 +123,9 @@ function hideLoading() {
   document.getElementById('main-nav').style.display = 'flex';
   if (!isAdmin) { document.getElementById('home-page').style.display = 'block'; }
 }
-setTimeout(hideLoading, 4000);
+// Con caché: ocultar pantalla rápido (los productos ya están renderizados)
+// Sin caché: esperar hasta que Firebase responda (máx 3.5s)
+setTimeout(hideLoading, store.products.length ? 800 : 3500);
 
 // ─── Firebase write helpers ───
 async function saveSettingsToFB(data) { await setDoc(settingsRef, data); }
@@ -1019,8 +1021,10 @@ function onSearchInput(q) {
     const price = p.priceText || parseFloat(p.price || 0).toFixed(2);
     const tagLabel = { nuevo:'Nuevo', preventa:'Preventa', oferta:'Oferta', low:'Pocas unidades', last:'Última pieza', unique:'Pieza única' }[p.tag || p.stock] || '';
     const tagColor = tagColors[p.tag] || tagColors[p.stock] || '#888';
-    const tagHtml = tagLabel ? `<span class="search-result-tag" style="background:${tagColor};">${tagLabel}</span>` : '';
-    return `<div class="search-result" data-idx="${i}" onclick="closeSearch();showDetail(${p.id})">${img}<div class="search-result-info"><div class="search-result-name">${highlighted}</div><div class="search-result-price">$ ${price}</div>${tagHtml}</div></div>`;
+    const tagHtml = p.soldOut
+      ? `<span class="search-result-tag search-result-tag-soldout">AGOTADO</span>`
+      : (tagLabel ? `<span class="search-result-tag" style="background:${tagColor};">${tagLabel}</span>` : '');
+    return `<div class="search-result${p.soldOut?' search-result-soldout':''}" data-idx="${i}" onclick="closeSearch();showDetail(${p.id})">${img}<div class="search-result-info"><div class="search-result-name">${highlighted}</div><div class="search-result-price">$ ${price}</div>${tagHtml}</div></div>`;
   }).join('');
   dropdown.classList.add('open');
 }
