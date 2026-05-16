@@ -319,7 +319,13 @@
     .detail-layout { grid-template-columns: 1fr; gap: 2rem; }
     .admin-form { grid-template-columns: 1fr; }
     .admin-form .full { grid-column: 1; }
-    .products-grid { padding: 0 1rem 3rem; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); gap: .6rem; padding: 0 .75rem 3rem; }
+    .product-info { padding: .7rem .75rem .9rem; }
+    .product-name { font-size: 1rem; }
+    .product-price { font-size: .95rem; }
+    .product-tag { font-size: .6rem; padding: .2rem .45rem; letter-spacing: 1px; }
+    .wa-btn-mini { font-size: .72rem; padding: .6rem .5rem; letter-spacing: .5px; }
+    .add-cart-btn { font-size: .7rem; padding: .5rem .5rem; letter-spacing: .5px; }
     .section-label { padding: 2rem 1rem 1rem; }
     .text-blocks { padding: 0 1rem; }
     .detail-layout { padding: 0 1rem 3rem; }
@@ -1314,7 +1320,8 @@ function formatPriceDisplay(p) {
 function renderProducts() {
   const grid=document.getElementById('products-grid'), count=document.getElementById('product-count');
   if(!grid) return;
-  const filtered=activeCategory==='Todos'?store.products:store.products.filter(p=>p.category===activeCategory);
+  const filtered=(activeCategory==='Todos'?store.products:store.products.filter(p=>p.category===activeCategory))
+    .slice().sort((a,b)=>parseFloat(a.price||0)-parseFloat(b.price||0));
   count.textContent=filtered.length+' artículos';
   if(filtered.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;font-size:.95rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Sin productos en esta categoría</div>';return;}
 
