@@ -1,13 +1,9 @@
 ﻿  /* ─── LOADING SCREEN ─── */
   #loading-screen {
     position: fixed; inset: 0; z-index: 9999;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6rem;
     background: #BAC63D;
     transition: opacity .4s ease;
-  }
-  #loading-inner {
-    display: flex; flex-direction: column; align-items: center; gap: 1.6rem;
-    background: transparent;
   }
   .l-mascot {
     width: 140px; height: 140px; border-radius: 50%;
