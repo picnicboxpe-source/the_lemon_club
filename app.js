@@ -135,7 +135,7 @@ function hideLoadingWhenReady() {
   let n = 0;
   const onDone = () => { if (++n >= urls.length) hideLoading(); };
   urls.forEach(u => { const img = new Image(); img.onload = img.onerror = onDone; img.src = u; });
-  setTimeout(hideLoading, 8000); // fallback absoluto
+  setTimeout(hideLoading, 5000); // fallback: si las imágenes tardan más de 5s, mostrar igual
 }
 // Con caché: precargar imágenes inmediatamente
 // Sin caché: el onSnapshot de productos dispara hideLoadingWhenReady cuando lleguen
