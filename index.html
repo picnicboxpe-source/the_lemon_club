@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0A0A0A" id="theme-color-meta">
 <title>The Lemon Club — Catálogo</title>
+
+<!-- ─── PWA ─── -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lemon Club">
+
+<!-- ─── OPEN GRAPH ─── -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Lemon Club — Catálogo">
+<meta property="og:description" content="Bolsos y accesorios únicos hechos con amor. Envíos a todo el país. Escríbenos por WhatsApp.">
+<meta property="og:image" content="icon-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Lemon Club — Catálogo">
+<meta name="twitter:description" content="Bolsos y accesorios únicos hechos con amor. Escríbenos por WhatsApp.">
+<meta name="description" content="Bolsos y accesorios únicos hechos con amor. Envíos a todo el país. Escríbenos por WhatsApp.">
+
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1956,6 +1975,11 @@ const catModalBtn = document.querySelector('#cat-modal .modal-close');
 if(catModalBtn) catModalBtn.onclick = ()=>document.getElementById('cat-modal').classList.remove('open');
 // cat modal add on enter
 document.getElementById('cat-new-name').addEventListener('keydown', e=>{ if(e.key==='Enter') addCategory(); });
+
+// ─── SERVICE WORKER ───
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
 </script>
 
 <!-- ════════════════════════ FLOATING MASCOT ════════════════════════ -->
