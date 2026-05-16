@@ -1036,16 +1036,18 @@ window.toggleNav = toggleNav; window.closeNav = closeNav; window.scrollToProduct
 // ═══════════════════════════════════════════════
 // PAGES
 // ═══════════════════════════════════════════════
+let _savedScrollY = 0;
 function showHome() {
   document.getElementById('home-page').style.display = 'block';
   document.getElementById('detail-page').style.display = 'none';
   document.getElementById('admin-panel').style.display = 'none';
   document.getElementById('main-nav').style.display = 'flex';
-  window.scrollTo(0,0);
+  requestAnimationFrame(() => window.scrollTo(0, _savedScrollY));
 }
 function showDetail(id) {
   const p = store.products.find(x => x.id == id);
   if (!p) return;
+  _savedScrollY = window.scrollY;
   document.getElementById('home-page').style.display = 'none';
   document.getElementById('detail-page').style.display = 'block';
   document.getElementById('admin-panel').style.display = 'none';
