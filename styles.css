@@ -49,10 +49,12 @@
     padding: 0 2rem; height: 64px; position: sticky; top: 0; z-index: 100;
   }
   .nav-logo-img { height: 40px; max-width: 160px; object-fit: contain; display: block; }
+  .nav-mascot-img { height: 40px; width: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-right: .5rem; }
   .nav-brand { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--yellow); letter-spacing: 4px; cursor: pointer; display: flex; align-items: center; }
   .nav-links { display: flex; gap: 2rem; }
   .nav-links a { color: var(--white); text-decoration: none; font-weight: 600; font-size: .95rem; letter-spacing: 1px; text-transform: uppercase; transition: color .2s; cursor: pointer; }
   .nav-links a:hover { color: var(--yellow); }
+  #install-btn { color: var(--yellow) !important; }
   .admin-btn { background: var(--yellow); color: var(--black); border: none; padding: .45rem 1.2rem; font-family: 'Barlow', sans-serif; font-weight: 700; font-size: .85rem; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity .2s; }
   .admin-btn:hover { opacity: .85; }
   .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }

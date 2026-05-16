@@ -104,12 +104,14 @@
 <!-- ════════════════════════ NAV ════════════════════════ -->
 <nav id="main-nav">
   <div class="nav-brand" onclick="showHome()" id="nav-brand-wrap">
+    <img src="icon-192.png" class="nav-mascot-img" alt="">
     <span id="nav-brand-text" style="visibility:hidden;"></span>
   </div>
   <div class="nav-links" id="nav-links">
     <a onclick="showHome(); closeNav()">Inicio</a>
     <a onclick="scrollToProducts(); closeNav()">Productos</a>
     <a onclick="openWA('Hola, quiero más información'); closeNav()">Contacto</a>
+    <a id="install-btn" style="display:none" onclick="installApp(); closeNav()">⬇ Descargar App</a>
   </div>
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="search-btn" id="search-btn" onclick="toggleSearch()" title="Buscar producto">
