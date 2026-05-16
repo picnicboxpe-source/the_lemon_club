@@ -26,6 +26,37 @@ const categoriesRef = doc(db, 'store', 'categories');
 const productsCol = collection(db, 'products');
 const textBlocksCol = collection(db, 'textBlocks');
 
+// ─── IndexedDB image cache (no size limit, replaces base64 in localStorage) ───
+const IDB = (() => {
+  let _db = null;
+  const open = () => _db ? Promise.resolve(_db) : new Promise((res, rej) => {
+    const r = indexedDB.open('tlc-imgs', 1);
+    r.onupgradeneeded = e => e.target.result.createObjectStore('imgs');
+    r.onsuccess = e => { _db = e.target.result; res(_db); };
+    r.onerror = rej;
+  });
+  return {
+    save(products) {
+      open().then(db => {
+        const tx = db.transaction('imgs', 'readwrite'), st = tx.objectStore('imgs');
+        products.forEach(p => (p.imgs||[]).forEach((img, i) => { if (img) st.put(img, p.id+'_'+i); }));
+      }).catch(() => {});
+    },
+    async restore(products) {
+      try {
+        const db = await open();
+        return Promise.all(products.map(p =>
+          Promise.all((p.imgs||[]).map((img, i) => img ? Promise.resolve(img) : new Promise(res => {
+            const r = db.transaction('imgs').objectStore('imgs').get(p.id+'_'+i);
+            r.onsuccess = () => res(r.result || '');
+            r.onerror = () => res('');
+          }))).then(imgs => { while (imgs.length && !imgs[imgs.length-1]) imgs.pop(); return {...p, imgs}; })
+        ));
+      } catch { return products; }
+    }
+  };
+})();
+
 // ─── In-memory store ───
 let store = {
   settings: {
@@ -82,7 +113,10 @@ try {
   const cachedCats = localStorage.getItem('tlc_categories');
   if (cachedCats) store.categories = JSON.parse(cachedCats);
   const cachedProds = localStorage.getItem('tlc_products');
-  if (cachedProds) store.products = JSON.parse(cachedProds);
+  if (cachedProds) {
+    store.products = JSON.parse(cachedProds);
+    IDB.restore(store.products).then(restored => { store.products = restored; renderProducts(); }).catch(() => {});
+  }
   const cachedBlocks = localStorage.getItem('tlc_textblocks');
   if (cachedBlocks) store.textBlocks = JSON.parse(cachedBlocks);
 } catch(e) {}
@@ -178,6 +212,7 @@ function bootstrap() {
   onSnapshot(productsCol, snap => {
     store.products = snap.docs.map(d => d.data());
     store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
+    IDB.save(store.products);
     try {
       const cacheable = store.products.map(p => ({
         ...p, imgs: (p.imgs||[]).map(img => img && img.startsWith('data:') ? '' : img)
