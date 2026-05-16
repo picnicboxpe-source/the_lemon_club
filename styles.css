@@ -1,4 +1,36 @@
-﻿  :root {
+﻿  /* ─── LOADING SCREEN ─── */
+  #loading-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    background: #BAC63D;
+    transition: opacity .35s ease;
+  }
+  #loading-inner {
+    display: flex; flex-direction: column; align-items: center; gap: 1.4rem;
+  }
+  #loading-inner img {
+    border-radius: 50%; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  }
+  #loading-inner [data-ltxt] {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: 2.3rem; letter-spacing: 8px;
+    color: #2a3a00; text-align: center; padding: 0 1rem;
+    transition: color .5s;
+  }
+  #loading-inner [data-lsub] {
+    color: #4a5a00; font-size: .78rem; letter-spacing: 3px;
+    text-transform: uppercase; transition: color .5s;
+  }
+  .l-dots { display: flex; gap: 6px; }
+  .l-dots span {
+    width: 8px; height: 8px; border-radius: 50%; background: #2a3a00;
+    animation: ldot 1.4s ease-in-out infinite;
+  }
+  .l-dots span:nth-child(2) { animation-delay: .2s; }
+  .l-dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes ldot { 0%,80%,100% { transform: scale(.6); opacity: .3; } 40% { transform: scale(1.2); opacity: 1; } }
+
+  :root {
     --yellow: #F5E642;
     --green: #1DB954;
     --black: #0A0A0A;
@@ -79,8 +111,14 @@
     position: relative;
   }
   .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.12); }
-  .product-img-wrap { position: relative; aspect-ratio: 3/4; overflow: hidden; background: #f0f0f0; }
-  .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; display: block; }
+  .product-img-wrap {
+    position: relative; aspect-ratio: 3/4; overflow: hidden;
+    background: linear-gradient(90deg, #ebebeb 25%, #e0e0e0 50%, #ebebeb 75%);
+    background-size: 300% 100%;
+    animation: imgShimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes imgShimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+  .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; display: block; position: relative; z-index: 1; }
   .product-card:hover .product-img-wrap img { transform: scale(1.04); }
   .product-tag {
     position: absolute; top: 12px; left: 12px;

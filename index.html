@@ -15,23 +15,23 @@
 <meta name="apple-mobile-web-app-title" content="Lemon Club">
 
 <!-- ─── SEO ─── -->
-<meta name="description" id="meta-desc" content="Bolsos y accesorios únicos hechos con amor. Envíos a todo el país. Escríbenos por WhatsApp.">
+<meta name="description" id="meta-desc" content="Accesorios únicos en Caracas, Venezuela. Collares, ganchos, correas y más, hechos con amor. Escríbenos por WhatsApp.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" id="canonical" href="https://picnicboxpe-source.github.io/the_lemon_club/">
 
 <!-- ─── OPEN GRAPH ─── -->
 <meta property="og:type" id="og-type" content="website">
 <meta property="og:site_name" content="The Lemon Club">
-<meta property="og:locale" content="es_PE">
+<meta property="og:locale" content="es_VE">
 <meta property="og:title" id="og-title" content="The Lemon Club — Catálogo">
-<meta property="og:description" id="og-desc" content="Bolsos y accesorios únicos hechos con amor. Envíos a todo el país. Escríbenos por WhatsApp.">
+<meta property="og:description" id="og-desc" content="Accesorios únicos en Caracas, Venezuela. Collares, ganchos, correas y más, hechos con amor. Escríbenos por WhatsApp.">
 <meta property="og:url" id="og-url" content="https://picnicboxpe-source.github.io/the_lemon_club/">
 <meta property="og:image" id="og-image" content="https://picnicboxpe-source.github.io/the_lemon_club/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" id="tw-title" content="The Lemon Club — Catálogo">
-<meta name="twitter:description" id="tw-desc" content="Bolsos y accesorios únicos hechos con amor. Escríbenos por WhatsApp.">
+<meta name="twitter:description" id="tw-desc" content="Accesorios únicos en Caracas. Collares, ganchos, correas y más. Escríbenos por WhatsApp.">
 <meta name="twitter:image" id="tw-image" content="https://picnicboxpe-source.github.io/the_lemon_club/icon-512.png">
 
 <!-- ─── STRUCTURED DATA ─── -->
@@ -43,9 +43,14 @@
       "@type": "Organization",
       "@id": "https://picnicboxpe-source.github.io/the_lemon_club/#organization",
       "name": "The Lemon Club",
-      "description": "Bolsos y accesorios únicos hechos con amor.",
+      "description": "Tienda de accesorios únicos en Caracas, Venezuela. Collares, ganchos, correas y más.",
       "url": "https://picnicboxpe-source.github.io/the_lemon_club",
-      "logo": "https://picnicboxpe-source.github.io/the_lemon_club/icon-512.png"
+      "logo": "https://picnicboxpe-source.github.io/the_lemon_club/icon-512.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Caracas",
+        "addressCountry": "VE"
+      }
     },
     {
       "@type": "WebSite",
@@ -63,20 +68,40 @@
       "@type": "Store",
       "@id": "https://picnicboxpe-source.github.io/the_lemon_club/#store",
       "name": "The Lemon Club",
-      "description": "Bolsos y accesorios únicos hechos con amor. Envíos a todo el país.",
+      "description": "Accesorios únicos en Caracas. Collares, ganchos, correas y más, hechos con amor.",
       "url": "https://picnicboxpe-source.github.io/the_lemon_club",
       "priceRange": "$$",
-      "currenciesAccepted": "PEN",
-      "paymentAccepted": "Pago contra entrega, transferencia"
+      "currenciesAccepted": "USD",
+      "paymentAccepted": "Pago contra entrega, transferencia",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Caracas",
+        "addressCountry": "VE"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Caracas"
+      }
     }
   ]
 }
 </script>
 
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<div id="loading-screen" aria-hidden="true">
+  <div id="loading-inner">
+    <img src="icon-192.png" alt="" width="72" height="72">
+    <div data-ltxt>THE LEMON CLUB</div>
+    <div data-lsub>Cargando tienda...</div>
+    <div class="l-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
 
 <!-- ════════════════════════ NAV ════════════════════════ -->
 <nav id="main-nav">
