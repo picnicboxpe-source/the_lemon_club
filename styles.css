@@ -346,11 +346,16 @@
     footer { padding: 2.5rem 1.5rem; }
   }
 
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 768px) {
+  /* ─── RESPONSIVE: NAV hamburger (tablets y móviles) ─── */
+  @media (max-width: 1024px) {
     .hamburger { display: flex; }
-    .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--black); flex-direction: column; padding: 1rem 2rem; gap: 1rem; }
+    .nav-links { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--black); flex-direction: column; padding: 1rem 2rem; gap: 1rem; z-index: 99; }
     .nav-links.open { display: flex; }
+    .search-btn-label { display: none; }
+  }
+
+  /* ─── RESPONSIVE: layout móvil ─── */
+  @media (max-width: 768px) {
     .detail-layout { grid-template-columns: 1fr; gap: 2rem; }
     .admin-form { grid-template-columns: 1fr; }
     .admin-form .full { grid-column: 1; }
