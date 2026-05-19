@@ -8,6 +8,7 @@
   .l-mascot {
     width: 200px; height: 200px; border-radius: 50%;
     object-fit: cover; background: transparent;
+    will-change: transform;
     animation: mascot-bounce 1.3s ease-in-out infinite;
   }
   @keyframes mascot-bounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-12px) scale(1.03); } }
