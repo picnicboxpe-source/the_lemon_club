@@ -1192,23 +1192,23 @@ if ('serviceWorker' in navigator) {
 let _installPrompt = null;
 const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
+// Mostrar el botón siempre que no esté corriendo como app instalada.
+// No depender de beforeinstallprompt porque el navegador no lo dispara
+// de nuevo inmediatamente después de desinstalar (tiene un cooldown).
+if (!_isStandalone) {
+  const btn = document.getElementById('install-btn');
+  if (btn) btn.style.display = '';
+}
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   _installPrompt = e;
-  const btn = document.getElementById('install-btn');
-  if (btn) btn.style.display = '';
 });
 window.addEventListener('appinstalled', () => {
   _installPrompt = null;
   const btn = document.getElementById('install-btn');
   if (btn) btn.style.display = 'none';
 });
-
-// Mostrar botón en iOS (no soporta beforeinstallprompt) si no está en standalone
-if (!_isStandalone && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-  const btn = document.getElementById('install-btn');
-  if (btn) btn.style.display = '';
-}
 
 function installApp() {
   if (_installPrompt) {
@@ -1218,6 +1218,8 @@ function installApp() {
     if (btn) btn.style.display = 'none';
   } else if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
     alert('Para instalar: toca el ícono de compartir (□↑) y luego "Agregar a pantalla de inicio"');
+  } else {
+    alert('Para instalar:\n• Android: toca el menú ⋮ del navegador → "Instalar aplicación" o "Agregar a pantalla de inicio"\n• PC: haz clic en el ícono ⊕ en la barra de direcciones del navegador');
   }
 }
 window.installApp = installApp;
