@@ -11,7 +11,7 @@
     will-change: transform;
     animation: mascot-bounce 1.3s ease-in-out infinite;
   }
-  @keyframes mascot-bounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-12px) scale(1.03); } }
+  @keyframes mascot-bounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-12px); } }
   .l-title {
     font-family: 'Bebas Neue', 'Impact', sans-serif;
     font-size: 2.4rem; letter-spacing: 10px;
