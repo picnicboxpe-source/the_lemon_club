@@ -1216,10 +1216,63 @@ function installApp() {
     _installPrompt.userChoice.then(() => { _installPrompt = null; });
     const btn = document.getElementById('install-btn');
     if (btn) btn.style.display = 'none';
-  } else if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-    alert('Para instalar: toca el ícono de compartir (□↑) y luego "Agregar a pantalla de inicio"');
-  } else {
-    alert('Para instalar:\n• Android: toca el menú ⋮ del navegador → "Instalar aplicación" o "Agregar a pantalla de inicio"\n• PC: haz clic en el ícono ⊕ en la barra de direcciones del navegador');
+    return;
   }
+  // No hay prompt nativo disponible: mostrar instrucciones según dispositivo
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const body = document.getElementById('install-modal-body');
+  if (body) {
+    if (isIOS) {
+      body.innerHTML = `
+        <p style="margin-bottom:1.25rem;color:#555;font-size:.9rem;line-height:1.6;">Sigue estos pasos en Safari:</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">1️⃣</span>
+            <span style="font-size:.9rem;color:#333;">Toca el botón de compartir <strong>□↑</strong> en la barra inferior del navegador</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">2️⃣</span>
+            <span style="font-size:.9rem;color:#333;">Desplázate y toca <strong>"Agregar a pantalla de inicio"</strong></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">3️⃣</span>
+            <span style="font-size:.9rem;color:#333;">Toca <strong>"Agregar"</strong> para confirmar</span>
+          </div>
+        </div>`;
+    } else if (isAndroid) {
+      body.innerHTML = `
+        <p style="margin-bottom:1.25rem;color:#555;font-size:.9rem;line-height:1.6;">Sigue estos pasos en Chrome:</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">1️⃣</span>
+            <span style="font-size:.9rem;color:#333;">Toca el menú <strong>⋮</strong> (tres puntos) arriba a la derecha</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">2️⃣</span>
+            <span style="font-size:.9rem;color:#333;">Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a pantalla de inicio"</strong></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">3️⃣</span>
+            <span style="font-size:.9rem;color:#333;">Toca <strong>"Instalar"</strong> para confirmar</span>
+          </div>
+        </div>
+        <p style="margin-top:1.25rem;color:#aaa;font-size:.78rem;line-height:1.5;">Si no ves la opción, espera unos segundos y vuelve a intentarlo desde el botón.</p>`;
+    } else {
+      body.innerHTML = `
+        <p style="margin-bottom:1.25rem;color:#555;font-size:.9rem;line-height:1.6;">Sigue estos pasos en tu navegador:</p>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">1️⃣</span>
+            <span style="font-size:.9rem;color:#333;">Busca el ícono <strong>⊕</strong> al final de la barra de direcciones</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-size:1.5rem;min-width:2rem;text-align:center;">2️⃣</span>
+            <span style="font-size:.9rem;color:#333;">O abre el menú del navegador y selecciona <strong>"Instalar The Lemon Club"</strong></span>
+          </div>
+        </div>`;
+    }
+  }
+  document.getElementById('install-modal').classList.add('open');
 }
 window.installApp = installApp;
