@@ -207,20 +207,28 @@ function bootstrap() {
     if (!store.categories.includes('Todos')) store.categories.unshift('Todos');
     renderCategoryTabs();
     if (isAdmin) renderAdminCategories();
-  });
+  }, err => { console.error('Error listener categorías:', err); });
   let prodsLoaded = false;
   onSnapshot(productsCol, snap => {
-    store.products = snap.docs.map(d => d.data());
-    store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
-    IDB.save(store.products);
-    try {
-      const cacheable = store.products.map(p => ({
-        ...p, imgs: (p.imgs||[]).map(img => img && img.startsWith('data:') ? '' : img)
-      }));
-      localStorage.setItem('tlc_products', JSON.stringify(cacheable));
-    } catch(e) {}
-    renderProducts();
-    if (isAdmin) renderAdminProducts();
+    const incoming = snap.docs.map(d => d.data());
+    // Guard: don't replace a full product list with a suspiciously small one from cache.
+    // Firestore fires optimistic local-cache snapshots before server confirmation;
+    // if the cache is corrupt those snapshots may be incomplete.
+    if (incoming.length === 0 && store.products.length > 0) {
+      console.warn('Snapshot de productos vacío ignorado (posible caché incompleta)');
+    } else {
+      store.products = incoming;
+      store.products.sort((a,b) => parseFloat(a.price||0) - parseFloat(b.price||0));
+      IDB.save(store.products);
+      try {
+        const cacheable = store.products.map(p => ({
+          ...p, imgs: (p.imgs||[]).map(img => img && img.startsWith('data:') ? '' : img)
+        }));
+        localStorage.setItem('tlc_products', JSON.stringify(cacheable));
+      } catch(e) {}
+      renderProducts();
+      if (isAdmin) renderAdminProducts();
+    }
     if (!prodsLoaded) {
       prodsLoaded = true;
       renderHome();
@@ -233,14 +241,14 @@ function bootstrap() {
       const done = () => { if (!--remaining) { clearTimeout(tid); hideLoading(); } };
       pending.forEach(img => { img.onload = img.onerror = done; });
     }
-  });
+  }, err => { console.error('Error listener productos:', err); showToast('Error de conexión con Firebase. Intenta recargar.'); });
   onSnapshot(textBlocksCol, snap => {
     store.textBlocks = snap.docs.map(d => d.data());
     store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
     try { localStorage.setItem('tlc_textblocks', JSON.stringify(store.textBlocks)); } catch(e) {}
     renderTextBlocks();
     if (isAdmin) renderAdminTextBlocks();
-  });
+  }, err => { console.error('Error listener bloques:', err); });
 }
 bootstrap();
 
@@ -799,9 +807,15 @@ async function saveProduct() {
   };
   const saveBtn = document.querySelector('#product-modal .form-save-btn');
   if(saveBtn){saveBtn.textContent='Guardando...';saveBtn.disabled=true;}
-  await saveProductToFB(prod);
-  closeProductModal();
-  if(saveBtn){saveBtn.textContent='Guardar Producto';saveBtn.disabled=false;}
+  try {
+    await saveProductToFB(prod);
+    closeProductModal();
+  } catch(e) {
+    console.error('Error guardando producto:', e);
+    showToast('Error al guardar. Verifica tu conexión e intenta de nuevo.');
+  } finally {
+    if(saveBtn){saveBtn.textContent='Guardar Producto';saveBtn.disabled=false;}
+  }
 }
 async function deleteProduct(id) {
   if(!confirm('¿Eliminar este producto?')) return;
