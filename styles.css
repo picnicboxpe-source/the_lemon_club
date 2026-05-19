@@ -22,12 +22,13 @@
   }
   .l-dots { display: flex; gap: 10px; align-items: flex-end; background: transparent; }
   .l-dots span {
-    font-size: 1.5rem; line-height: 1; background: transparent;
+    font-size: 2.6rem; line-height: 1; background: transparent;
+    display: inline-block; will-change: transform, opacity;
     animation: ldot-float 1.4s ease-in-out infinite;
   }
   .l-dots span:nth-child(2) { animation-delay: .22s; }
   .l-dots span:nth-child(3) { animation-delay: .44s; }
-  @keyframes ldot-float { 0%,100% { transform: translateY(0) scale(.85); opacity: .35; } 40% { transform: translateY(-10px) scale(1.2); opacity: 1; } }
+  @keyframes ldot-float { 0%,100% { transform: translateY(2px) scale(.72); opacity: .35; } 40% { transform: translateY(-10px) scale(1); opacity: 1; } }
 
   :root {
     --yellow: #F5E642;
