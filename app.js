@@ -148,9 +148,10 @@ function hideLoading() {
   }
   if (el) {
     el.style.opacity = '0';
-    setTimeout(() => { if (el.parentNode) el.remove(); revealApp(); }, 400);
+    setTimeout(() => { if (el.parentNode) el.remove(); revealApp(); window.dispatchEvent(new Event('appReady')); }, 400);
   } else {
     revealApp();
+    window.dispatchEvent(new Event('appReady'));
   }
 }
 // Con caché: revelar en 500ms (productos ya renderizados, imágenes cargan en fondo)
@@ -1172,6 +1173,12 @@ function secretAdminClick() {
   }
 }
 window.secretAdminClick = secretAdminClick;
+
+// ─── Secret URL access (?admin) ───
+if (new URLSearchParams(window.location.search).has('admin')) {
+  history.replaceState(null, '', window.location.pathname);
+  window.addEventListener('appReady', () => openLoginModal(), { once: true });
+}
 
 // ─── Close modals on outside click ───
 document.querySelectorAll('.modal-overlay').forEach(m=>{
