@@ -1406,7 +1406,7 @@ async function renderAdminWaitlist() {
     summaryEl.innerHTML = sorted.length === 0
       ? '<p style="color:#999;font-size:.875rem;margin:0;">Sin registros aún.</p>'
       : sorted.map(([nombre, count]) =>
-          `<div class="wl-summary-card"><span class="wl-summary-name">${nombre}</span><span class="wl-summary-count">${count} interesada${count !== 1 ? 's' : ''}</span></div>`
+          `<div class="wl-summary-card"><span class="wl-summary-name">${nombre}</span><span class="wl-summary-count">${count} interesada${count !== 1 ? 's' : ''}</span><button class="wl-del-btn" onclick="deleteWaitlistProduct('${nombre.replace(/'/g,"\\'")}')">✕</button></div>`
         ).join('');
 
     // Product filter dropdown
@@ -1441,7 +1441,6 @@ async function renderAdminWaitlist() {
         <div class="wl-item-actions">
           <a class="wl-wa-btn" href="https://wa.me/${waNum}?text=${msg}" target="_blank" rel="noopener">💬 WhatsApp</a>
           ${!r.notificada ? `<button class="wl-mark-btn" onclick="markWaitlistNotified('${r.id}')">✓ Notificada</button>` : ''}
-          <button class="wl-del-btn" onclick="deleteWaitlistEntry('${r.id}')" title="Eliminar registro">✕</button>
         </div>
       </div>`;
     }).join('');
@@ -1451,13 +1450,15 @@ async function renderAdminWaitlist() {
   }
 }
 
-async function deleteWaitlistEntry(docId) {
-  if (!confirm('¿Eliminar este registro de la lista de espera?')) return;
+async function deleteWaitlistProduct(productoNombre) {
+  if (!confirm(`¿Eliminar TODOS los registros de "${productoNombre}" de la lista de espera?`)) return;
   try {
-    await deleteDoc(doc(db, 'waitlist', docId));
+    const q = query(waitlistCol, where('productoNombre', '==', productoNombre));
+    const snap = await getDocs(q);
+    await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'waitlist', d.id))));
     renderAdminWaitlist();
   } catch(e) {
-    showToast('Error al eliminar el registro.');
+    showToast('Error al eliminar los registros.');
   }
 }
 
@@ -1475,7 +1476,7 @@ function setWLStatusFilter(val) { _wlStatusFilter = val; renderAdminWaitlist(); 
 
 window.renderAdminWaitlist = renderAdminWaitlist;
 window.markWaitlistNotified = markWaitlistNotified;
-window.deleteWaitlistEntry = deleteWaitlistEntry;
+window.deleteWaitlistProduct = deleteWaitlistProduct;
 window.setWLFilter = setWLFilter;
 window.setWLStatusFilter = setWLStatusFilter;
 
