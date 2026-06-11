@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Catálogo y configuración (acceso abierto — admin sin Firebase Auth) ──
+    match /products/{id} {
+      allow read, write: if true;
+    }
+    match /store/{id} {
+      allow read, write: if true;
+    }
+    match /textBlocks/{id} {
+      allow read, write: if true;
+    }
+
+    // ── Lista de espera ──
+    // create: cualquiera puede anotarse (clientas sin cuenta), validando estructura
+    // read / update / delete: abierto (admin no usa Firebase Auth en este proyecto)
+    match /waitlist/{id} {
+      allow create: if request.resource.data.keys().hasOnly([
+                        'nombre', 'whatsapp', 'productoId',
+                        'productoNombre', 'fecha', 'notificada'
+                      ])
+                   && request.resource.data.nombre is string
+                   && request.resource.data.nombre.size() > 0
+                   && request.resource.data.whatsapp is string
+                   && request.resource.data.whatsapp.size() >= 10
+                   && request.resource.data.productoId is string
+                   && request.resource.data.productoNombre is string
+                   && request.resource.data.notificada == false;
+
+      allow read, update, delete: if true;
+    }
+
+  }
+}
