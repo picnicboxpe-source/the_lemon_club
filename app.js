@@ -5,7 +5,7 @@ const SITE_URL = 'https://picnicboxpe-source.github.io/the_lemon_club';
 // FIREBASE SETUP
 // ═══════════════════════════════════════════════
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc, addDoc, getDocs, query, where, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 const firebaseConfig = {
@@ -25,6 +25,7 @@ const settingsRef = doc(db, 'store', 'settings');
 const categoriesRef = doc(db, 'store', 'categories');
 const productsCol = collection(db, 'products');
 const textBlocksCol = collection(db, 'textBlocks');
+const waitlistCol = collection(db, 'waitlist');
 
 // ─── IndexedDB image cache (no size limit, replaces base64 in localStorage) ───
 const IDB = (() => {
@@ -626,9 +627,12 @@ function renderProducts() {
             : '';
     const soldOverlay=p.soldOut?`<div class="soldout-overlay"><span class="soldout-label">AGOTADO</span></div>`:'';
     const waBtn=p.soldOut
-      ? `<a class="wa-btn-mini disabled">AGOTADO</a>`
+      ? ``
       : `<a class="wa-btn-mini" onclick="event.stopPropagation();openWA('Hola, quiero información sobre: ${p.name.replace(/'/g,"\\'")}')" >💬 Consultar</a><button class="add-cart-btn" onclick="event.stopPropagation();addToCart(${p.id},1)">+ Agregar al carrito</button>`;
-    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price">${formatPriceDisplay(p)}${p.showCu!==false?' <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span>':''}</div>${waBtn}</div></div>`;
+    const wlBtn=p.soldOut
+      ? `<button class="wl-overlay-btn" onclick="event.stopPropagation();openWaitlistModal('${p.id}','${p.name.replace(/'/g,"\\'")}')">🔔 AVÍSENME CUANDO ESTE PRODUCTO VUELVA EN STOCK ♥</button>`
+      : '';
+    return `<div class="product-card${p.soldOut?' soldout':''}" onclick="${p.soldOut?'':`showDetail(${p.id})`}"><div class="product-img-wrap">${img}${tag}${stockTag}${soldOverlay}${wlBtn}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-price">${formatPriceDisplay(p)}${p.showCu!==false?' <span style="font-size:.72rem;color:#aaa;font-weight:600;">c/u</span>':''}</div>${waBtn}</div></div>`;
   }
 
   const CHUNK = 12;
@@ -696,7 +700,7 @@ function renderAdmin() {
   document.getElementById('col-band').value=c.band||'#0A0A0A';
   document.getElementById('col-band-text').value=c.bandText||'#F5E642';
   document.getElementById('col-gray').value=c.gray||'#E8E8E8';
-  renderAdminProducts(); renderAdminCategories(); renderAdminTextBlocks();
+  renderAdminProducts(); renderAdminCategories(); renderAdminTextBlocks(); renderAdminWaitlist();
 }
 
 function renderAdminProducts() {
@@ -1283,3 +1287,199 @@ function installApp() {
   document.getElementById('install-modal').classList.add('open');
 }
 window.installApp = installApp;
+
+// ═══════════════════════════════════════════════
+// WAITLIST — Lista de espera
+// ═══════════════════════════════════════════════
+
+let _wlProductId = null, _wlProductName = '';
+
+function openWaitlistModal(productId, productName) {
+  _wlProductId = productId;
+  _wlProductName = productName;
+  const nameEl = document.getElementById('wl-modal-product-name');
+  if (nameEl) nameEl.textContent = productName;
+  document.getElementById('wl-nombre').value = '';
+  document.getElementById('wl-whatsapp').value = '';
+  const errEl = document.getElementById('wl-error');
+  const successEl = document.getElementById('wl-success');
+  const formBody = document.getElementById('wl-form-body');
+  if (errEl) errEl.style.display = 'none';
+  if (successEl) successEl.style.display = 'none';
+  if (formBody) formBody.style.display = 'block';
+  const btn = document.getElementById('wl-submit-btn');
+  if (btn) { btn.textContent = 'Enviar'; btn.disabled = false; }
+  document.getElementById('waitlist-modal').classList.add('open');
+}
+
+function closeWaitlistModal() {
+  document.getElementById('waitlist-modal').classList.remove('open');
+  _wlProductId = null; _wlProductName = '';
+}
+
+async function submitWaitlist() {
+  const nombre = document.getElementById('wl-nombre').value.trim();
+  const whatsapp = document.getElementById('wl-whatsapp').value.trim();
+  const errEl = document.getElementById('wl-error');
+  const successEl = document.getElementById('wl-success');
+  const formBody = document.getElementById('wl-form-body');
+  const btn = document.getElementById('wl-submit-btn');
+
+  if (!nombre) {
+    errEl.textContent = 'Por favor ingresa tu nombre.';
+    errEl.style.display = 'block'; return;
+  }
+  const waClean = whatsapp.replace(/\s+/g, '');
+  const waDigits = waClean.replace(/[^\d]/g, '');
+  if (!waClean || waDigits.length < 10) {
+    errEl.textContent = 'Ingresa un número de WhatsApp válido (mínimo 10 dígitos).';
+    errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+
+  try {
+    const dupQ = query(waitlistCol,
+      where('whatsapp', '==', waClean),
+      where('productoId', '==', String(_wlProductId))
+    );
+    const dupSnap = await getDocs(dupQ);
+    if (!dupSnap.empty) {
+      formBody.style.display = 'none';
+      successEl.textContent = '¡Ya estás en la lista para este producto! 🍋';
+      successEl.style.display = 'block';
+      return;
+    }
+    await addDoc(waitlistCol, {
+      nombre,
+      whatsapp: waClean,
+      productoId: String(_wlProductId),
+      productoNombre: _wlProductName,
+      fecha: serverTimestamp(),
+      notificada: false
+    });
+    formBody.style.display = 'none';
+    successEl.textContent = '¡Listo! Te avisaremos cuando vuelva 🍋💚';
+    successEl.style.display = 'block';
+  } catch(e) {
+    console.error('Waitlist error:', e);
+    errEl.textContent = 'Ocurrió un error. Por favor intenta de nuevo.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Enviar'; btn.disabled = false;
+  }
+}
+
+window.openWaitlistModal = openWaitlistModal;
+window.closeWaitlistModal = closeWaitlistModal;
+window.submitWaitlist = submitWaitlist;
+
+// ─── Admin waitlist ───
+let _wlFilter = 'Todos', _wlStatusFilter = 'pendientes';
+
+function formatWANumber(phone) {
+  let n = (phone || '').replace(/[\s\-()]/g, '');
+  if (n.startsWith('+')) n = n.slice(1);
+  const digits = n.replace(/\D/g, '');
+  if (digits.startsWith('0') && digits.length === 11) return '58' + digits.slice(1);
+  if (digits.length === 10) return '58' + digits;
+  return digits;
+}
+
+async function renderAdminWaitlist() {
+  const el = document.getElementById('admin-waitlist-list');
+  const summaryEl = document.getElementById('admin-waitlist-summary');
+  const filterEl = document.getElementById('wl-filter-product');
+  const statusEl = document.getElementById('wl-filter-status');
+  if (!el || !summaryEl || !filterEl) return;
+
+  el.innerHTML = '<p style="color:#999;font-size:.875rem;">Cargando...</p>';
+  try {
+    const snap = await getDocs(waitlistCol);
+    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    all.sort((a, b) => (b.fecha?.seconds || 0) - (a.fecha?.seconds || 0));
+
+    // Summary by product, ordered by count
+    const byProduct = {};
+    all.forEach(r => { byProduct[r.productoNombre] = (byProduct[r.productoNombre] || 0) + 1; });
+    const sorted = Object.entries(byProduct).sort((a, b) => b[1] - a[1]);
+    summaryEl.innerHTML = sorted.length === 0
+      ? '<p style="color:#999;font-size:.875rem;margin:0;">Sin registros aún.</p>'
+      : sorted.map(([nombre, count]) =>
+          `<div class="wl-summary-card"><span class="wl-summary-name">${nombre}</span><span class="wl-summary-count">${count} interesada${count !== 1 ? 's' : ''}</span></div>`
+        ).join('');
+
+    // Product filter dropdown
+    const prods = ['Todos', ...Object.keys(byProduct)];
+    filterEl.innerHTML = prods.map(p =>
+      `<option value="${p}"${p === _wlFilter ? ' selected' : ''}>${p === 'Todos' ? 'Todos los productos' : p}</option>`
+    ).join('');
+    if (statusEl) statusEl.value = _wlStatusFilter;
+
+    // Apply filters
+    let filtered = all;
+    if (_wlFilter !== 'Todos') filtered = filtered.filter(r => r.productoNombre === _wlFilter);
+    if (_wlStatusFilter === 'pendientes') filtered = filtered.filter(r => !r.notificada);
+    else if (_wlStatusFilter === 'notificadas') filtered = filtered.filter(r => r.notificada);
+
+    if (filtered.length === 0) {
+      el.innerHTML = '<p style="color:#999;font-size:.875rem;">No hay registros para este filtro.</p>';
+      return;
+    }
+
+    el.innerHTML = filtered.map(r => {
+      const fecha = r.fecha?.seconds
+        ? new Date(r.fecha.seconds * 1000).toLocaleDateString('es-VE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : '—';
+      const waNum = formatWANumber(r.whatsapp);
+      const msg = encodeURIComponent(`¡Hola ${r.nombre}! 🍋 Te escribimos de The Lemon Club: ${r.productoNombre} ya está de nuevo en stock 💚 ¡Corre que vuelan!`);
+      return `<div class="wl-item${r.notificada ? ' wl-notificada' : ''}">
+        <div class="wl-item-info">
+          <div class="wl-item-name">${r.nombre}${r.notificada ? ' <span class="wl-check">✓ Notificada</span>' : ''}</div>
+          <div class="wl-item-meta">${r.whatsapp} · ${r.productoNombre} · ${fecha}</div>
+        </div>
+        <div class="wl-item-actions">
+          <a class="wl-wa-btn" href="https://wa.me/${waNum}?text=${msg}" target="_blank" rel="noopener">💬 WhatsApp</a>
+          ${!r.notificada ? `<button class="wl-mark-btn" onclick="markWaitlistNotified('${r.id}')">✓ Notificada</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.error('Admin waitlist error:', e);
+    el.innerHTML = '<p style="color:#c00;font-size:.875rem;">Error cargando la lista. Verifica las reglas de Firestore.</p>';
+  }
+}
+
+async function markWaitlistNotified(docId) {
+  try {
+    await updateDoc(doc(db, 'waitlist', docId), { notificada: true });
+    renderAdminWaitlist();
+  } catch(e) {
+    showToast('Error al actualizar el registro.');
+  }
+}
+
+function setWLFilter(val) { _wlFilter = val; renderAdminWaitlist(); }
+function setWLStatusFilter(val) { _wlStatusFilter = val; renderAdminWaitlist(); }
+
+window.renderAdminWaitlist = renderAdminWaitlist;
+window.markWaitlistNotified = markWaitlistNotified;
+window.setWLFilter = setWLFilter;
+window.setWLStatusFilter = setWLStatusFilter;
+
+// ─── Patch showDetail: inyectar botón waitlist en página de detalle ───
+const _origShowDetail = window.showDetail;
+window.showDetail = function(id) {
+  _origShowDetail(id);
+  const p = store.products.find(x => x.id == id);
+  const wlWrap = document.getElementById('detail-wl-wrap');
+  if (!wlWrap) return;
+  if (p && p.soldOut) {
+    const safeName = (p.name || '').replace(/'/g, "\\'");
+    wlWrap.innerHTML = `<button class="wl-btn" onclick="openWaitlistModal('${p.id}','${safeName}')">🔔 AVÍSENME CUANDO ESTE PRODUCTO VUELVA EN STOCK ♥</button>`;
+    wlWrap.style.display = 'block';
+  } else {
+    wlWrap.innerHTML = '';
+    wlWrap.style.display = 'none';
+  }
+};
