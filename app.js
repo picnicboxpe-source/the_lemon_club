@@ -1441,12 +1441,23 @@ async function renderAdminWaitlist() {
         <div class="wl-item-actions">
           <a class="wl-wa-btn" href="https://wa.me/${waNum}?text=${msg}" target="_blank" rel="noopener">💬 WhatsApp</a>
           ${!r.notificada ? `<button class="wl-mark-btn" onclick="markWaitlistNotified('${r.id}')">✓ Notificada</button>` : ''}
+          <button class="wl-del-btn" onclick="deleteWaitlistEntry('${r.id}')" title="Eliminar registro">✕</button>
         </div>
       </div>`;
     }).join('');
   } catch(e) {
     console.error('Admin waitlist error:', e);
     el.innerHTML = '<p style="color:#c00;font-size:.875rem;">Error cargando la lista. Verifica las reglas de Firestore.</p>';
+  }
+}
+
+async function deleteWaitlistEntry(docId) {
+  if (!confirm('¿Eliminar este registro de la lista de espera?')) return;
+  try {
+    await deleteDoc(doc(db, 'waitlist', docId));
+    renderAdminWaitlist();
+  } catch(e) {
+    showToast('Error al eliminar el registro.');
   }
 }
 
@@ -1464,6 +1475,7 @@ function setWLStatusFilter(val) { _wlStatusFilter = val; renderAdminWaitlist(); 
 
 window.renderAdminWaitlist = renderAdminWaitlist;
 window.markWaitlistNotified = markWaitlistNotified;
+window.deleteWaitlistEntry = deleteWaitlistEntry;
 window.setWLFilter = setWLFilter;
 window.setWLStatusFilter = setWLStatusFilter;
 
