@@ -777,7 +777,7 @@ function openProductModal(id) {
     const p=store.products.find(x=>x.id==id);
     document.getElementById('pf-name').value=p.name;
     document.getElementById('pf-price').value=p.priceText||p.price||'';
-    document.getElementById('pf-tag').value=p.tag||'';
+    document.getElementById('pf-tag').value=(p.tag==='nuevo'?'':p.tag)||'';
     document.getElementById('pf-category').value=p.category||'';
     document.getElementById('pf-stock').value = p.soldOut ? 'soldout' : (p.stock || 'available');
     document.getElementById('pf-show-cu').checked = p.showCu !== false;
@@ -802,7 +802,7 @@ async function saveProduct() {
   if(!name||!priceText){alert('Completa nombre y precio');return;}
   const imgs=[document.getElementById('pf-img1').value.trim(),document.getElementById('pf-img2').value.trim(),document.getElementById('pf-img3').value.trim()].filter(Boolean);
   const prod={
-    name, price, priceText:priceText, tag:document.getElementById('pf-tag').value,
+    name, price, priceText:priceText, tag:document.getElementById('pf-tag').value==='nuevo'?'':document.getElementById('pf-tag').value,
     category:document.getElementById('pf-category').value,
     soldOut: document.getElementById('pf-stock').value === 'soldout',
     stock: document.getElementById('pf-stock').value,
