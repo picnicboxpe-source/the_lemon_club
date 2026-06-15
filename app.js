@@ -617,13 +617,13 @@ function renderProducts() {
     const img=p.imgs&&p.imgs[0]?`<img src="${p.imgs[0]}" alt="${p.name}">`:`<div class="img-placeholder">📷</div>`;
     const tag=p.tag?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
     const stockTag = p.stock==='low'
-      ? `<span class="product-tag tag-low" style="position:absolute;bottom:10px;left:10px;top:auto;">Pocas unidades</span>`
+      ? `<span class="product-tag tag-low" style="position:absolute;top:12px;right:12px;left:auto;">Pocas unidades</span>`
       : p.stock==='last'
-        ? `<span class="product-tag tag-last" style="position:absolute;bottom:10px;left:10px;top:auto;">🟠 Última Pieza</span>`
+        ? `<span class="product-tag tag-last" style="position:absolute;top:12px;right:12px;left:auto;">🟠 Última Pieza</span>`
         : p.stock==='unique'
-          ? `<span class="product-tag tag-unique" style="position:absolute;bottom:10px;left:10px;top:auto;">🔴 Pieza única</span>`
+          ? `<span class="product-tag tag-unique" style="position:absolute;top:12px;right:12px;left:auto;">🔴 Pieza única</span>`
           : p.stock==='collection'
-            ? `<span class="product-tag tag-collection" style="position:absolute;bottom:10px;left:10px;top:auto;">✨ Única Colección</span>`
+            ? `<span class="product-tag tag-collection" style="position:absolute;top:12px;right:12px;left:auto;">✨ Única Colección</span>`
             : '';
     const soldOverlay=p.soldOut?`<div class="soldout-overlay"><span class="soldout-label">AGOTADO</span></div>`:'';
     const waBtn=p.soldOut
