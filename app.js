@@ -615,7 +615,7 @@ function renderProducts() {
 
   function buildCard(p) {
     const img=p.imgs&&p.imgs[0]?`<img src="${p.imgs[0]}" alt="${p.name}">`:`<div class="img-placeholder">📷</div>`;
-    const tag=p.tag?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
+    const tag=(p.tag&&p.tag!=='nuevo')?`<span class="product-tag tag-${p.tag}">${p.tag.charAt(0).toUpperCase()+p.tag.slice(1)}</span>`:'';
     const stockTag = p.stock==='low'
       ? `<span class="product-tag tag-low" style="position:absolute;top:12px;right:12px;left:auto;">Pocas unidades</span>`
       : p.stock==='last'
