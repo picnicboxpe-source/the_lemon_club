@@ -1358,6 +1358,17 @@ async function submitWaitlist() {
       fecha: serverTimestamp(),
       notificada: false
     });
+
+    // Notificación Telegram al admin
+    const tgToken = '8931243657:AAFXPuqO-BYxpGxZvez8dge8sEpZQq4CObA';
+    const tgChatId = '1725515383';
+    const tgMsg = `🍋 *Nueva clienta en lista de espera*\n\n👤 *Nombre:* ${nombre}\n📱 *WhatsApp:* ${waClean}\n📦 *Producto:* ${_wlProductName}`;
+    fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: tgChatId, text: tgMsg, parse_mode: 'Markdown' })
+    }).catch(() => {});
+
     formBody.style.display = 'none';
     successEl.textContent = '¡Listo! Te avisaremos cuando vuelva 🍋💚';
     successEl.style.display = 'block';
