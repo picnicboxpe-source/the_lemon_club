@@ -1362,11 +1362,11 @@ async function submitWaitlist() {
     // Notificación Telegram al admin
     const tgToken = '8931243657:AAFXPuqO-BYxpGxZvez8dge8sEpZQq4CObA';
     const tgChatId = '1725515383';
-    const tgMsg = `🍋 *Nueva clienta en lista de espera*\n\n👤 *Nombre:* ${nombre}\n📱 *WhatsApp:* ${waClean}\n📦 *Producto:* ${_wlProductName}`;
+    const tgMsg = `🍋 Nueva clienta en lista de espera\n\nNombre: ${nombre}\nWhatsApp: ${waClean}\nProducto: ${_wlProductName}`;
     fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: tgChatId, text: tgMsg, parse_mode: 'Markdown' })
+      body: JSON.stringify({ chat_id: tgChatId, text: tgMsg })
     }).catch(() => {});
 
     formBody.style.display = 'none';
