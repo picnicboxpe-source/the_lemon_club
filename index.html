@@ -627,6 +627,44 @@
       </div>
     </div>
 
+    <!-- STATS -->
+    <div class="admin-section">
+      <div class="admin-section-header">
+        <h3>📊 Estadísticas</h3>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+          <select id="stats-range-select" onchange="setStatsRange(this.value)" style="border:1.5px solid #ddd;border-radius:2px;padding:.5rem .75rem;font-family:'Barlow',sans-serif;font-size:.875rem;outline:none;background:#fff;cursor:pointer;">
+            <option value="7">Últimos 7 días</option>
+            <option value="30" selected>Últimos 30 días</option>
+            <option value="90">Últimos 90 días</option>
+          </select>
+          <button class="admin-add-btn" onclick="renderAdminStats()">↺ Actualizar</button>
+        </div>
+      </div>
+      <div class="admin-section-body">
+        <p style="font-size:.875rem;color:#888;margin-bottom:1rem;">Visitas y productos más vistos en la tienda. Tu propio acceso como admin no se cuenta.</p>
+        <div class="stats-tiles" id="admin-stats-tiles"></div>
+
+        <h4 class="stats-subtitle">Visitas por día</h4>
+        <div class="stats-chart" id="admin-stats-daily"></div>
+
+        <h4 class="stats-subtitle">Horarios de mayor tráfico</h4>
+        <div class="stats-chart stats-chart-hours" id="admin-stats-hours"></div>
+
+        <div class="stats-two-col">
+          <div>
+            <h4 class="stats-subtitle">Productos más vistos</h4>
+            <div id="admin-stats-products"></div>
+          </div>
+          <div>
+            <h4 class="stats-subtitle">Origen del tráfico</h4>
+            <div id="admin-stats-sources"></div>
+          </div>
+        </div>
+
+        <button class="del-btn" style="margin-top:1.5rem;" onclick="deleteOldStats()">🗑 Borrar datos anteriores a 90 días</button>
+      </div>
+    </div>
+
   </div>
 </div>
 

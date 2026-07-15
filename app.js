@@ -26,6 +26,8 @@ const categoriesRef = doc(db, 'store', 'categories');
 const productsCol = collection(db, 'products');
 const textBlocksCol = collection(db, 'textBlocks');
 const waitlistCol = collection(db, 'waitlist');
+const visitsCol = collection(db, 'visits');
+const productViewsCol = collection(db, 'productViews');
 
 // ─── IndexedDB image cache (no size limit, replaces base64 in localStorage) ───
 const IDB = (() => {
@@ -56,6 +58,68 @@ const IDB = (() => {
       } catch { return products; }
     }
   };
+})();
+
+// ─── Analíticas (visitas + productos vistos) — solo lectura desde el panel admin ───
+// No usa Firebase Auth (igual que el resto del proyecto): oculto en la UI pública,
+// no protegido a nivel de base de datos. Ver firestore.rules.
+const Analytics = (() => {
+  function localDateStr(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function bucketSource(ref) {
+    if (!ref) return 'Directo';
+    const r = ref.toLowerCase();
+    if (r.includes('google')) return 'Google';
+    if (r.includes('instagram')) return 'Instagram';
+    if (r.includes('facebook') || r.includes('fb.com')) return 'Facebook';
+    if (r.includes('whatsapp') || r.includes('wa.me')) return 'WhatsApp';
+    if (r.includes('tiktok')) return 'TikTok';
+    return 'Otro';
+  }
+  function getSource() {
+    try {
+      let s = sessionStorage.getItem('tlc_source');
+      if (!s) { s = bucketSource(document.referrer); sessionStorage.setItem('tlc_source', s); }
+      return s;
+    } catch (e) { return bucketSource(document.referrer); }
+  }
+  function isOwnerDevice() {
+    try { return !!localStorage.getItem('tlc_owner_device'); } catch (e) { return false; }
+  }
+  function logVisit() {
+    try {
+      if (isOwnerDevice()) return;
+      if (sessionStorage.getItem('tlc_visit_logged')) return;
+      sessionStorage.setItem('tlc_visit_logged', '1');
+    } catch (e) {}
+    const now = new Date();
+    addDoc(visitsCol, {
+      fecha: serverTimestamp(),
+      dateStr: localDateStr(now),
+      hour: now.getHours(),
+      source: getSource()
+    }).catch(() => {});
+  }
+  function logProductView(p) {
+    if (!p) return;
+    try {
+      if (isOwnerDevice()) return;
+      const key = 'tlc_viewed_' + p.id;
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch (e) {}
+    const now = new Date();
+    addDoc(productViewsCol, {
+      productId: String(p.id),
+      productName: p.name || '',
+      fecha: serverTimestamp(),
+      dateStr: localDateStr(now),
+      hour: now.getHours(),
+      source: getSource()
+    }).catch(() => {});
+  }
+  return { localDateStr, logVisit, logProductView, markOwnerDevice: () => { try { localStorage.setItem('tlc_owner_device', '1'); } catch (e) {} } };
 })();
 
 // ─── In-memory store ───
@@ -253,6 +317,7 @@ function bootstrap() {
   }, err => { console.error('Error listener bloques:', err); });
 }
 bootstrap();
+Analytics.logVisit();
 
 // ═══════════════════════════════════════════════
 // WHATSAPP
@@ -569,6 +634,7 @@ function renderHome() {
   document.title = s.brand+' — Catálogo';
   updateSEO({});
   applyColors(); applyFont();
+  const navTxt = document.getElementById('nav-brand-text');
   if(navTxt) { navTxt.textContent = (s.navBrand !== undefined ? s.navBrand : ''); navTxt.style.visibility = 'visible'; }
   const heroWrap=document.getElementById('hero-img-wrap'),heroTxt=document.getElementById('brand-hero'),heroImg=document.getElementById('hero-brand-img');
   if(s.brandImg){heroImg.src=s.brandImg;heroWrap.style.display='block';heroTxt.style.display='none';}
@@ -669,7 +735,7 @@ function openLoginModal() {
 function closeLoginModal() { document.getElementById('login-modal').classList.remove('open'); }
 function doLogin() {
   const u=document.getElementById('login-user').value.trim(), p=document.getElementById('login-pass').value;
-  if(u==='admin'&&p===store.settings.password){isAdmin=true;closeLoginModal();showAdmin();}
+  if(u==='admin'&&p===store.settings.password){isAdmin=true;Analytics.markOwnerDevice();closeLoginModal();showAdmin();}
   else{document.getElementById('login-error').style.display='block';}
 }
 function doLogout() { isAdmin=false; showHome(); }
@@ -700,7 +766,7 @@ function renderAdmin() {
   document.getElementById('col-band').value=c.band||'#0A0A0A';
   document.getElementById('col-band-text').value=c.bandText||'#F5E642';
   document.getElementById('col-gray').value=c.gray||'#E8E8E8';
-  renderAdminProducts(); renderAdminCategories(); renderAdminTextBlocks(); renderAdminWaitlist();
+  renderAdminProducts(); renderAdminCategories(); renderAdminTextBlocks(); renderAdminWaitlist(); renderAdminStats();
 }
 
 function renderAdminProducts() {
@@ -1491,11 +1557,145 @@ window.deleteWaitlistProduct = deleteWaitlistProduct;
 window.setWLFilter = setWLFilter;
 window.setWLStatusFilter = setWLStatusFilter;
 
+// ─── Admin: estadísticas (visitas, productos más vistos, origen, horarios) ───
+let _statsRange = 30;
+
+async function renderAdminStats() {
+  const tilesEl = document.getElementById('admin-stats-tiles');
+  const dailyEl = document.getElementById('admin-stats-daily');
+  const prodEl = document.getElementById('admin-stats-products');
+  const sourceEl = document.getElementById('admin-stats-sources');
+  const hourEl = document.getElementById('admin-stats-hours');
+  if (!tilesEl || !dailyEl || !prodEl || !sourceEl || !hourEl) return;
+
+  tilesEl.innerHTML = '<p style="color:#999;font-size:.875rem;">Cargando...</p>';
+  try {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - _statsRange);
+    const [visitsSnap, viewsSnap] = await Promise.all([
+      getDocs(query(visitsCol, where('fecha', '>=', cutoff))),
+      getDocs(query(productViewsCol, where('fecha', '>=', cutoff)))
+    ]);
+    const visits = visitsSnap.docs.map(d => d.data());
+    const views = viewsSnap.docs.map(d => d.data());
+    const todayStr = Analytics.localDateStr(new Date());
+    const visitsToday = visits.filter(v => v.dateStr === todayStr).length;
+
+    // Serie diaria
+    const byDay = {};
+    visits.forEach(v => { byDay[v.dateStr] = (byDay[v.dateStr] || 0) + 1; });
+    const days = [];
+    for (let i = _statsRange - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const ds = Analytics.localDateStr(d);
+      days.push({ date: ds, count: byDay[ds] || 0 });
+    }
+    const maxDay = Math.max(1, ...days.map(d => d.count));
+
+    // Productos más vistos
+    const byProduct = {};
+    views.forEach(v => { const k = v.productName || v.productId; byProduct[k] = (byProduct[k] || 0) + 1; });
+    const topProducts = Object.entries(byProduct).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    const maxProd = Math.max(1, ...topProducts.map(p => p[1]));
+
+    // Origen del tráfico
+    const bySource = {};
+    visits.forEach(v => { const s = v.source || 'Otro'; bySource[s] = (bySource[s] || 0) + 1; });
+    const totalVisits = visits.length || 1;
+    const sources = Object.entries(bySource).sort((a, b) => b[1] - a[1]);
+    const maxSource = Math.max(1, ...sources.map(s => s[1]));
+
+    // Horarios
+    const byHour = Array(24).fill(0);
+    visits.forEach(v => { if (typeof v.hour === 'number' && v.hour >= 0 && v.hour < 24) byHour[v.hour]++; });
+    const maxHour = Math.max(1, ...byHour);
+
+    const topProductName = topProducts.length ? topProducts[0][0] : '—';
+
+    tilesEl.innerHTML = `
+      <div class="stats-tile"><div class="stats-tile-label">Visitas hoy</div><div class="stats-tile-value">${visitsToday}</div></div>
+      <div class="stats-tile"><div class="stats-tile-label">Visitas (${_statsRange} días)</div><div class="stats-tile-value">${visits.length}</div></div>
+      <div class="stats-tile"><div class="stats-tile-label">Producto más visto</div><div class="stats-tile-value stats-tile-value-sm">${topProductName}</div></div>
+    `;
+
+    const labelStep = Math.max(1, Math.ceil(_statsRange / 10));
+    dailyEl.innerHTML = days.map((d, i) => {
+      const pct = Math.round((d.count / maxDay) * 100);
+      const label = (i % labelStep === 0) ? d.date.slice(5).replace('-', '/') : '';
+      return `<div class="stats-col" title="${d.date}: ${d.count} visita${d.count !== 1 ? 's' : ''}">
+        <div class="stats-col-bar" style="height:${d.count > 0 ? Math.max(pct, 6) : 0}%"></div>
+        <div class="stats-col-label">${label}</div>
+      </div>`;
+    }).join('');
+
+    prodEl.innerHTML = topProducts.length === 0
+      ? '<p style="color:#999;font-size:.875rem;">Sin vistas de productos aún.</p>'
+      : topProducts.map(([name, count]) => {
+          const pct = Math.round((count / maxProd) * 100);
+          return `<div class="stats-row" title="${name}: ${count} vista${count !== 1 ? 's' : ''}">
+            <div class="stats-row-label">${name}</div>
+            <div class="stats-row-track"><div class="stats-row-fill" style="width:${pct}%"></div></div>
+            <div class="stats-row-val">${count}</div>
+          </div>`;
+        }).join('');
+
+    sourceEl.innerHTML = sources.length === 0
+      ? '<p style="color:#999;font-size:.875rem;">Sin datos de origen aún.</p>'
+      : sources.map(([name, count]) => {
+          const pct = Math.round((count / maxSource) * 100);
+          const share = Math.round((count / totalVisits) * 100);
+          return `<div class="stats-row" title="${name}: ${count} (${share}%)">
+            <div class="stats-row-label">${name}</div>
+            <div class="stats-row-track"><div class="stats-row-fill" style="width:${pct}%"></div></div>
+            <div class="stats-row-val">${share}%</div>
+          </div>`;
+        }).join('');
+
+    hourEl.innerHTML = byHour.map((count, h) => {
+      const pct = Math.round((count / maxHour) * 100);
+      return `<div class="stats-col" title="${String(h).padStart(2, '0')}:00 — ${count} visita${count !== 1 ? 's' : ''}">
+        <div class="stats-col-bar" style="height:${count > 0 ? Math.max(pct, 6) : 0}%"></div>
+        <div class="stats-col-label">${h}</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    console.error('Admin stats error:', e);
+    tilesEl.innerHTML = '<p style="color:#c00;font-size:.875rem;">Error cargando estadísticas. Verifica las reglas de Firestore.</p>';
+    dailyEl.innerHTML = ''; prodEl.innerHTML = ''; sourceEl.innerHTML = ''; hourEl.innerHTML = '';
+  }
+}
+
+function setStatsRange(days) { _statsRange = parseInt(days, 10) || 30; renderAdminStats(); }
+
+async function deleteOldStats() {
+  if (!confirm('¿Borrar datos de visitas y vistas de productos con más de 90 días de antigüedad? Esta acción no se puede deshacer.')) return;
+  try {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+    const [visitsSnap, viewsSnap] = await Promise.all([
+      getDocs(query(visitsCol, where('fecha', '<', cutoff))),
+      getDocs(query(productViewsCol, where('fecha', '<', cutoff)))
+    ]);
+    await Promise.all([
+      ...visitsSnap.docs.map(d => deleteDoc(doc(db, 'visits', d.id))),
+      ...viewsSnap.docs.map(d => deleteDoc(doc(db, 'productViews', d.id)))
+    ]);
+    showToast(`Se borraron ${visitsSnap.size + viewsSnap.size} registros antiguos.`);
+    renderAdminStats();
+  } catch (e) {
+    showToast('Error al borrar datos antiguos.');
+  }
+}
+
+window.renderAdminStats = renderAdminStats;
+window.setStatsRange = setStatsRange;
+window.deleteOldStats = deleteOldStats;
+
 // ─── Patch showDetail: inyectar botón waitlist en página de detalle ───
 const _origShowDetail = window.showDetail;
 window.showDetail = function(id) {
   _origShowDetail(id);
   const p = store.products.find(x => x.id == id);
+  Analytics.logProductView(p);
   const wlWrap = document.getElementById('detail-wl-wrap');
   if (!wlWrap) return;
   if (p && p.soldOut) {

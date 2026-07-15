@@ -32,5 +32,32 @@ service cloud.firestore {
       allow read, update, delete: if true;
     }
 
+    // ── Analíticas: visitas y productos vistos ──
+    // create: cualquier visita del público, validando estructura
+    // read / delete: abierto (solo se muestra en el panel admin, admin no usa Firebase Auth en este proyecto)
+    match /visits/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['fecha', 'dateStr', 'hour', 'source'])
+                   && request.resource.data.dateStr is string
+                   && request.resource.data.hour is int
+                   && request.resource.data.hour >= 0 && request.resource.data.hour <= 23
+                   && request.resource.data.source is string;
+
+      allow read, delete: if true;
+    }
+
+    match /productViews/{id} {
+      allow create: if request.resource.data.keys().hasOnly([
+                        'productId', 'productName', 'fecha', 'dateStr', 'hour', 'source'
+                      ])
+                   && request.resource.data.productId is string
+                   && request.resource.data.productName is string
+                   && request.resource.data.dateStr is string
+                   && request.resource.data.hour is int
+                   && request.resource.data.hour >= 0 && request.resource.data.hour <= 23
+                   && request.resource.data.source is string;
+
+      allow read, delete: if true;
+    }
+
   }
 }
