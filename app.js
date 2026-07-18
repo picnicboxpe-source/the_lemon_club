@@ -671,9 +671,11 @@ function formatPriceDisplay(p) {
   return `<span class="currency">$</span>${txt || parseFloat(p.price||0).toFixed(2)}`;
 }
 
+let _renderProductsGen = 0;
 function renderProducts() {
   const grid=document.getElementById('products-grid'), count=document.getElementById('product-count');
   if(!grid) return;
+  const myGen = ++_renderProductsGen;
   const filtered=(activeCategory==='Todos'?store.products:store.products.filter(p=>p.category===activeCategory))
     .slice().sort((a,b)=>parseFloat(a.price||0)-parseFloat(b.price||0));
   count.textContent=filtered.length+' artículos';
@@ -708,6 +710,7 @@ function renderProducts() {
   if (filtered.length > CHUNK) {
     let i = CHUNK;
     function renderNext() {
+      if (myGen !== _renderProductsGen) return; // a newer renderProducts() call superseded this one
       if (i >= filtered.length) return;
       const fragment = filtered.slice(i, i + CHUNK).map(buildCard).join('');
       grid.insertAdjacentHTML('beforeend', fragment);
