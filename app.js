@@ -200,7 +200,7 @@ requestAnimationFrame(() => {
 let editingProductId = null;
 let editingTextBlockId = null;
 let isAdmin = false;
-let activeCategory = 'Todos';
+let activeCategory = 'Ganchos - Clips';
 
 // ─── Loading screen ───
 let loaded = false;
@@ -649,9 +649,10 @@ function renderHome() {
 
 function renderCategoryTabs() {
   const el=document.getElementById('cat-tabs'); if(!el) return;
-  const cats=store.categories||['Todos'];
-  const all=cats.includes('Todos')?cats:['Todos',...cats];
-  el.innerHTML=all.map(c=>`<button class="cat-tab${c===activeCategory?' active':''}" onclick="filterCategory('${c.replace(/'/g,"\\'")}')"> ${c} </button>`).join('');
+  const cats=(store.categories||[]).filter(c=>c!=='Todos');
+  if(!cats.length) return;
+  if(!cats.includes(activeCategory)) activeCategory=cats[0];
+  el.innerHTML=cats.map(c=>`<button class="cat-tab${c===activeCategory?' active':''}" onclick="filterCategory('${c.replace(/'/g,"\\'")}')"> ${c} </button>`).join('');
 }
 function filterCategory(cat) { activeCategory=cat; renderCategoryTabs(); renderProducts(); }
 window.filterCategory=filterCategory;
@@ -676,7 +677,7 @@ function renderProducts() {
   const grid=document.getElementById('products-grid'), count=document.getElementById('product-count');
   if(!grid) return;
   const myGen = ++_renderProductsGen;
-  const filtered=(activeCategory==='Todos'?store.products:store.products.filter(p=>p.category===activeCategory))
+  const filtered=store.products.filter(p=>p.category===activeCategory)
     .slice().sort((a,b)=>parseFloat(a.price||0)-parseFloat(b.price||0));
   count.textContent=filtered.length+' artículos';
   if(filtered.length===0){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#999;font-size:.95rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;">Sin productos en esta categoría</div>';return;}
