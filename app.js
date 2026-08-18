@@ -954,7 +954,7 @@ async function addCategory() {
   document.getElementById('cat-modal').classList.remove('open');
 }
 async function editCategory(oldName){
-  const newName=prompt('Nuevo nombre:',oldName)?.trim(); if(!newName||newName===oldName)return;if(store.categories.includes(newName)){alert('Esa categoría ya existe');return;}await saveCategoriesToFB(store.categories.map(c=>c===oldName?newName:c));}
+  const newName=prompt('Nuevo nombre:',oldName)?.trim(); if(!newName||newName===oldName)return;if(store.categories.includes(newName)){alert('Esa categoría ya existe');return;}await saveCategoriesToFB(store.categories.map(c=>c===oldName?newName:c));
 }
 async function deleteCategory(name) {
   if(!confirm(`¿Eliminar la categoría "${name}"?`)) return;
