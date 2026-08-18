@@ -793,7 +793,7 @@ function renderAdminCategories() {
   const el=document.getElementById('admin-cat-list'); if(!el) return;
   const cats=(store.categories||['Todos']).filter(c=>c!=='Todos');
   if(cats.length===0){el.innerHTML='<p style="color:#999;font-size:.875rem;">Sin categorías adicionales.</p>';return;}
-  el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid #f0f0f0;"><span style="flex:1;font-weight:600;">${c}</span><button class="del-btn" onclick="deleteCategory('${c.replace(/'/g,"\\'")}')">Borrar</button></div>`).join('');
+  el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid #f0f0f0;"><span style="flex:1;font-weight:600;">${c}</span><button class="edit-btn" onclick="editCategory('${c.replace(/'/g,"\\'")}')">Editar</button><button class="del-btn" onclick="deleteCategory('${c.replace(/'/g,"\\'")}')">Borrar</button></div>`).join('');
 }
 function renderAdminTextBlocks() {
   const el=document.getElementById('admin-text-blocks'); if(!el) return;
@@ -953,6 +953,9 @@ async function addCategory() {
   document.getElementById('cat-new-name').value='';
   document.getElementById('cat-modal').classList.remove('open');
 }
+async function editCategory(oldName){
+  const newName=prompt('Nuevo nombre:',oldName)?.trim(); if(!newName||newName===oldName)return;if(store.categories.includes(newName)){alert('Esa categoría ya existe');return;}await saveCategoriesToFB(store.categories.map(c=>c===oldName?newName:c));
+}
 async function deleteCategory(name) {
   if(!confirm(`¿Eliminar la categoría "${name}"?`)) return;
   const newCats=store.categories.filter(c=>c!==name);
@@ -961,7 +964,7 @@ async function deleteCategory(name) {
   for(const p of prods){ await saveProductToFB({...p, category:''}); }
   await saveCategoriesToFB(newCats);
 }
-window.addCategory=addCategory; window.deleteCategory=deleteCategory;
+window.addCategory=addCategory; window.editCategory=editCategory; window.deleteCategory=deleteCategory;
 
 // ═══════════════════════════════════════════════
 // TEXT BLOCK CRUD
