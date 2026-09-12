@@ -373,7 +373,7 @@ function showDetail(id) {
       brand: { '@type': 'Brand', name: store.settings.brand || 'The Lemon Club' },
       offers: {
         '@type': 'Offer',
-        priceCurrency: 'USD',
+        priceCurrency: 'EUR',
         price: parseFloat(p.price || 0).toFixed(2),
         availability: p.soldOut ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
         seller: { '@type': 'Organization', name: store.settings.brand || 'The Lemon Club' }
@@ -662,14 +662,14 @@ function formatPriceDisplay(p) {
   // Detect bundle: "2x5", "2 x 5", "2X5"
   const bundle = txt.match(/^(\d+)\s*[xX×]\s*(\d+[\d.]*)$/);
   if (bundle) {
-    return `<span style="font-size:.82rem;color:#777;font-weight:600;">${bundle[1]} und ×</span> <span class="currency">$</span>${parseFloat(bundle[2]).toFixed(2)}`;
+    return `<span style="font-size:.82rem;color:#777;font-weight:600;">${bundle[1]} und ×</span> <span class="currency">€</span>${parseFloat(bundle[2]).toFixed(2)}`;
   }
   // "Desde 8" or plain number
   const desde = txt.match(/^[Dd]esde\s+(\d+[\d.]*)/);
   if (desde) {
-    return `<span style="font-size:.82rem;color:#777;font-weight:600;">Desde</span> <span class="currency">$</span>${parseFloat(desde[1]).toFixed(2)}`;
+    return `<span style="font-size:.82rem;color:#777;font-weight:600;">Desde</span> <span class="currency">€</span>${parseFloat(desde[1]).toFixed(2)}`;
   }
-  return `<span class="currency">$</span>${txt || parseFloat(p.price||0).toFixed(2)}`;
+  return `<span class="currency">€</span>${txt || parseFloat(p.price||0).toFixed(2)}`;
 }
 
 let _renderProductsGen = 0;
@@ -781,7 +781,7 @@ function renderAdminProducts() {
       <img src="${p.imgs&&p.imgs[0]?p.imgs[0]:''}" alt="${p.name}" loading="lazy" onerror="this.style.background='#eee'">
       <div class="api-info">
         <strong>${p.name}${p.soldOut?' <span style="color:#c00;font-size:.7rem;font-weight:900;">AGOTADO</span>':p.stock==='unique'?' <span style="color:#D0021B;font-size:.7rem;font-weight:900;">PIEZA ÚNICA</span>':p.stock==='last'?' <span style="color:#E05A00;font-size:.7rem;font-weight:900;">ÚLTIMA PIEZA</span>':p.stock==='collection'?' <span style="color:#6B2D8B;font-size:.7rem;font-weight:900;">ÚNICA COLECCIÓN</span>':p.stock==='low'?' <span style="color:#FF8C00;font-size:.7rem;font-weight:900;">POCAS</span>':''}</strong>
-        <span>$ ${p.priceText||parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
+        <span>€ ${p.priceText||parseFloat(p.price).toFixed(2)}${p.category?' · '+p.category:''}${p.tag?' · '+p.tag:''}</span>
       </div>
       <div class="api-actions">
         <button class="edit-btn" onclick="openProductModal(${p.id})">Editar</button>
@@ -1080,7 +1080,7 @@ function renderCart() {
       ${imgHtml}
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">$ ${(item.price * item.qty).toFixed(2)} <span style="color:#bbb;font-size:.75rem;">(${item.qty} × $ ${item.price.toFixed(2)})</span></div>
+        <div class="cart-item-price">€ ${(item.price * item.qty).toFixed(2)} <span style="color:#bbb;font-size:.75rem;">(${item.qty} × € ${item.price.toFixed(2)})</span></div>
         <div class="cart-item-controls">
           <button class="qty-btn" onclick="changeCartQty(${i},-1)">−</button>
           <span class="qty-num">${item.qty}</span>
@@ -1114,9 +1114,9 @@ function clearCart() {
 function sendCartToWA() {
   if (cart.length === 0) return;
   const brand = store.settings.brand || 'The Lemon Club';
-  const lines = cart.map(item => `  • ${item.name} × ${item.qty}  →  $ ${(item.price * item.qty).toFixed(2)}`);
+  const lines = cart.map(item => `  • ${item.name} × ${item.qty}  →  € ${(item.price * item.qty).toFixed(2)}`);
   const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
-  const msg = `¡Hola! Quisiera hacer el siguiente pedido en ${brand}:\n\n${lines.join('\n')}\n\n💰 Total estimado: $ ${total.toFixed(2)}\n\n¿Cómo procedo para confirmar?`;
+  const msg = `¡Hola! Quisiera hacer el siguiente pedido en ${brand}:\n\n${lines.join('\n')}\n\n💰 Total estimado: € ${total.toFixed(2)}\n\n¿Cómo procedo para confirmar?`;
   openWA(msg);
 }
 window.changeCartQty = changeCartQty; window.removeFromCart = removeFromCart;
@@ -1189,7 +1189,7 @@ function onSearchInput(q) {
     const tagHtml = p.soldOut
       ? `<span class="search-result-tag search-result-tag-soldout">AGOTADO</span>`
       : (tagLabel ? `<span class="search-result-tag" style="background:${tagColor};">${tagLabel}</span>` : '');
-    return `<div class="search-result${p.soldOut?' search-result-soldout':''}" data-idx="${i}" onclick="closeSearch();showDetail(${p.id})">${img}<div class="search-result-info"><div class="search-result-name">${highlighted}</div><div class="search-result-price">$ ${price}</div>${tagHtml}</div></div>`;
+    return `<div class="search-result${p.soldOut?' search-result-soldout':''}" data-idx="${i}" onclick="closeSearch();showDetail(${p.id})">${img}<div class="search-result-info"><div class="search-result-name">${highlighted}</div><div class="search-result-price">€ ${price}</div>${tagHtml}</div></div>`;
   }).join('');
   dropdown.classList.add('open');
 }
