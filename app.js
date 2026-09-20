@@ -662,7 +662,7 @@ function formatPriceDisplay(p) {
   // Detect bundle: "2x5", "2 x 5", "2X5"
   const bundle = txt.match(/^(\d+)\s*[xX×]\s*(\d+[\d.]*)$/);
   if (bundle) {
-    return `<span style="font-size:.82rem;color:#777;font-weight:600;">${bundle[1]} und ×</span> <span class="currency">€</span>${parseFloat(bundle[2]).toFixed(2)}`;
+    return `<span style="font-size:.82rem;color:#777;font-weight:600;">${bundle[1]} und ×</span> <span class="currency">$</span>${parseFloat(bundle[2]).toFixed(2)}`;
   }
   // "Desde 8" or plain number
   const desde = txt.match(/^[Dd]esde\s+(\d+[\d.]*)/);
@@ -1080,7 +1080,7 @@ function renderCart() {
       ${imgHtml}
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">$ ${(item.price * item.qty).toFixed(2)} <span style="color:#bbb;font-size:.75rem;">(${item.qty} × € ${item.price.toFixed(2)})</span></div>
+        <div class="cart-item-price">$ ${(item.price * item.qty).toFixed(2)} <span style="color:#bbb;font-size:.75rem;">(${item.qty} × $ ${item.price.toFixed(2)})</span></div>
         <div class="cart-item-controls">
           <button class="qty-btn" onclick="changeCartQty(${i},-1)">−</button>
           <span class="qty-num">${item.qty}</span>
