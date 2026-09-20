@@ -97,8 +97,9 @@
 <div id="loading-screen" aria-hidden="true">
   <img src="mascot.jpg" alt="mascota" class="l-mascot" onerror="this.style.display='none'">
   <div class="l-title">THE LEMON CLUB</div>
-  <div class="l-sub">Cargando tienda...</div>
-  <div class="l-dots"><span>🍋</span><span>🍋</span><span>🍋</span></div>
+  <div class="l-sub" id="loading-msg">Cargando tienda...</div>
+  <div class="l-dots" id="loading-dots"><span>🍋</span><span>🍋</span><span>🍋</span></div>
+  <button id="loading-retry-btn" style="display:none;margin-top:1rem;padding:.6rem 1.4rem;border-radius:8px;border:none;background:#1DB954;color:#fff;font-weight:700;cursor:pointer;" onclick="location.reload()">Reintentar</button>
 </div>
 
 <!-- ════════════════════════ NAV ════════════════════════ -->
