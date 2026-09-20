@@ -221,10 +221,19 @@ function hideLoading() {
 }
 // Con caché: revelar en 500ms (productos ya renderizados, imágenes cargan en fondo)
 // Sin caché: onSnapshot dispara hideLoading cuando llegan datos de Firebase
+function showLoadError() {
+  if (loaded) return;
+  const msg = document.getElementById('loading-msg');
+  const dots = document.getElementById('loading-dots');
+  const btn = document.getElementById('loading-retry-btn');
+  if (msg) msg.textContent = 'No pudimos cargar la tienda. Revisa tu conexión.';
+  if (dots) dots.style.display = 'none';
+  if (btn) btn.style.display = 'inline-block';
+}
 if (store.products.length) {
   setTimeout(hideLoading, 500);
 } else {
-  setTimeout(hideLoading, 6000); // fallback si Firebase no responde
+  setTimeout(() => { if (!loaded) showLoadError(); }, 6000);
 }
 
 // ─── Firebase write helpers ───
@@ -307,7 +316,7 @@ function bootstrap() {
       const done = () => { if (!--remaining) { clearTimeout(tid); hideLoading(); } };
       pending.forEach(img => { img.onload = img.onerror = done; });
     }
-  }, err => { console.error('Error listener productos:', err); showToast('Error de conexión con Firebase. Intenta recargar.'); });
+    }, err => { console.error('Error listener productos:', err); showLoadError(); showToast('Error de conexión con Firebase. Intenta recargar.'); });
   onSnapshot(textBlocksCol, snap => {
     store.textBlocks = snap.docs.map(d => d.data());
     store.textBlocks.sort((a,b) => (a.id||0) - (b.id||0));
