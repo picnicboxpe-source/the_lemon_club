@@ -5,7 +5,7 @@ const SITE_URL = 'https://picnicboxpe-source.github.io/the_lemon_club';
 // FIREBASE SETUP
 // ═══════════════════════════════════════════════
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc, addDoc, getDocs, query, where, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { initializeFirestore, doc, setDoc, onSnapshot, collection, deleteDoc, addDoc, getDocs, query, where, serverTimestamp, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 const firebaseConfig = {
@@ -17,7 +17,7 @@ const firebaseConfig = {
   appId: "1:832867282040:web:bedd54ec8f8f39a2c0518d"
 };
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 const storage = getStorage(app);
 
 // ─── Refs ───
@@ -127,7 +127,7 @@ let store = {
   settings: {
     font: 'Barlow', brand: 'The Lemon Club', navBrand: '', logo: '', brandImg: '',
     heroSub: 'Accesorios con personalidad. Únicos, modernos y para ti.',
-    wa: '51987654321',
+    wa: '514241215776',
     band: 'HECHO CON AMOR — ACCESORIOS ÚNICOS — ESCRÍBENOS POR WHATSAPP',
     footer: 'Accesorios únicos en Caracas • Contáctanos por WhatsApp',
     password: 'admin123',
