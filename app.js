@@ -233,7 +233,20 @@ function showLoadError() {
 if (store.products.length) {
   setTimeout(hideLoading, 500);
 } else {
-  setTimeout(() => { if (!loaded) showLoadError(); }, 6000);
+  setTimeout(async () => {
+    if (loaded) return;
+    try {
+      const snap = await getDocs(productsCol);
+      if (!snap.empty && !loaded) {
+        store.products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        loaded = true;
+        renderProducts();
+        hideLoading();
+        return;
+      }
+    } catch (e) { console.error('Reintento automático falló:', e); }
+    if (!loaded) showLoadError();
+  }, 6000);
 }
 
 // ─── Firebase write helpers ───
