@@ -226,7 +226,7 @@ function showLoadError() {
   const msg = document.getElementById('loading-msg');
   const dots = document.getElementById('loading-dots');
   const btn = document.getElementById('loading-retry-btn');
-  if (msg) msg.textContent = 'No pudimos cargar la tienda. Revisa tu conexión.';
+  if (msg) msg.textContent = 'En caso de que no pueda visualizar los productos, presionar el botón de reintentar';
   if (dots) dots.style.display = 'none';
   if (btn) btn.style.display = 'inline-block';
 }
