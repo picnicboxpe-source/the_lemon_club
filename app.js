@@ -239,7 +239,6 @@ if (store.products.length) {
       const snap = await getDocs(productsCol);
       if (!snap.empty && !loaded) {
         store.products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        loaded = true;
         renderProducts();
         hideLoading();
         return;
